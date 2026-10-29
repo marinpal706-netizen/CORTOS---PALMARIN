@@ -97,7 +97,7 @@
                 <div id="shorts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
-            <!-- PLAYER VIEW -->
+            <!-- PLAYER VIEW (DINÁMICO SEGÚN LO QUE HAYA) -->
             <div id="player-view" class="hidden max-w-4xl mx-auto">
                 <button onclick="goHome()" class="mb-6 flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-800 px-4 py-2 rounded-xl transition w-fit border border-gray-700">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
@@ -136,8 +136,8 @@
                         </div>
                     </div>
 
-                    <!-- 2. TRÁILER -->
-                    <div class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl">
+                    <!-- 2. TRÁILER (SE OCULTA SI NO HAY URL) -->
+                    <div id="trailer-container" class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
                                 <span class="text-red-500">▶</span> ¿Quieres ver el tráiler?
@@ -149,8 +149,8 @@
                         </div>
                     </div>
 
-                    <!-- 3. CORTO COMPLETO -->
-                    <div class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl">
+                    <!-- 3. CORTO COMPLETO (SE OCULTA SI NO HAY URL) -->
+                    <div id="movie-container" class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
                                 <span class="text-red-500">🎬</span> ¿Quieres ver el corto?
@@ -186,19 +186,18 @@
                     <input type="text" id="form-title" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
                 </div>
                 
-                <!-- EXAMINAR IMAGEN DESDE EL PC -->
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Imagen / Póster / Portada desde tu PC</label>
                     <input type="file" id="form-poster-file" accept="image/*" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-white text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-500 cursor-pointer">
                 </div>
                 
-                <div id="short-specific-fields">
+                <div id="short-specific-fields" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Tráiler</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Tráiler <span class="text-gray-500 normal-case">(Opcional)</span></label>
                         <input type="url" id="form-trailer" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
                     </div>
-                    <div class="mt-4">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Cortometraje Completo</label>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Cortometraje Completo <span class="text-gray-500 normal-case">(Opcional)</span></label>
                         <input type="url" id="form-movie" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
                     </div>
                 </div>
@@ -461,8 +460,26 @@
                 laurelsContainer.innerHTML = '<span class="text-xs text-gray-500 italic">Sin selecciones de festivales registradas.</span>';
             }
 
-            document.getElementById('trailer-iframe').src = convertYTUrl(short.trailer);
-            document.getElementById('movie-iframe').src = convertYTUrl(short.movie);
+            // GESTIÓN DINÁMICA DE TRÁILER E IFRAME DEL CORTO (SE OCULTAN SI ESTÁN VACÍOS)
+            const trailerContainer = document.getElementById('trailer-container');
+            const trailerIframe = document.getElementById('trailer-iframe');
+            if (short.trailer && short.trailer.trim() !== '') {
+                trailerIframe.src = convertYTUrl(short.trailer);
+                trailerContainer.classList.remove('hidden');
+            } else {
+                trailerIframe.src = '';
+                trailerContainer.classList.add('hidden');
+            }
+
+            const movieContainer = document.getElementById('movie-container');
+            const movieIframe = document.getElementById('movie-iframe');
+            if (short.movie && short.movie.trim() !== '') {
+                movieIframe.src = convertYTUrl(short.movie);
+                movieContainer.classList.remove('hidden');
+            } else {
+                movieIframe.src = '';
+                movieContainer.classList.add('hidden');
+            }
 
             const adminEditContainer = document.getElementById('admin-edit-container');
             if (currentUser === 'javierpalaciosadmin') {
@@ -491,13 +508,9 @@
             if (activeTab === 'shorts') {
                 modalTitle.textContent = "Añadir Nuevo Cortometraje";
                 shortFields.classList.remove('hidden');
-                document.getElementById('form-trailer').required = true;
-                document.getElementById('form-movie').required = true;
             } else {
                 modalTitle.textContent = "Añadir Nuevo Guion";
                 shortFields.classList.add('hidden');
-                document.getElementById('form-trailer').required = false;
-                document.getElementById('form-movie').required = false;
             }
 
             document.getElementById('laurels-inputs-container').innerHTML = '';
@@ -527,7 +540,6 @@
             container.appendChild(row);
         }
 
-        // GUARDAR CON LECTURA DE IMAGEN DESDE EL PC
         function saveItem(e) {
             e.preventDefault();
             
@@ -541,8 +553,6 @@
 
                 const laurels = [];
                 document.querySelectorAll('.laurel-row').forEach(row => {
-                    const type = row.querySelector('.laurel-type.value') ? row.querySelector('.laurel-type').value : row.querySelector('.laurel-type').value;
-                    // Simplificado para capturar correctamente el tipo y nombre
                     const typeVal = row.querySelector('.laurel-type').value;
                     const nameVal = row.querySelector('.laurel-name').value.trim();
                     if (nameVal) laurels.push({ type: typeVal, name: nameVal });
@@ -552,9 +562,9 @@
                     const newShort = {
                         id: Date.now(),
                         title: document.getElementById('form-title').value,
-                        poster: imageBase64, // Guarda la imagen subida desde el PC
-                        trailer: document.getElementById('form-trailer').value,
-                        movie: document.getElementById('form-movie').value,
+                        poster: imageBase64,
+                        trailer: document.getElementById('form-trailer').value.trim(),
+                        movie: document.getElementById('form-movie').value.trim(),
                         synopsis: document.getElementById('form-synopsis').value,
                         laurels: laurels
                     };
@@ -565,7 +575,7 @@
                     const newScript = {
                         id: Date.now(),
                         title: document.getElementById('form-title').value,
-                        poster: imageBase64, // Guarda la portada subida desde el PC
+                        poster: imageBase64,
                         synopsis: document.getElementById('form-synopsis').value,
                         laurels: laurels
                     };
