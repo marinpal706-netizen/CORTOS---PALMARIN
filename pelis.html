@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plmrn - Portal Cinematográfico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #07090e; color: #f3f4f6; overflow-x: hidden; }
+        
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 20%, rgba(220, 38, 38, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 80%, rgba(217, 119, 6, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 1) 0%, #07090e 100%);
+        }
+
+        .glass { background: rgba(17, 24, 39, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .card-hover { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 25px 30px -10px rgba(220, 38, 38, 0.2); border-color: rgba(220, 38, 38, 0.4); }
+        
+        .laurel-badge {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.9) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            color: #fbbf24;
+        }
+
+        #loader-screen {
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
+
+    <!-- FONDO DINÁMICO -->
+    <div class="ambient-bg"></div>
+
+    <!-- PANTALLA DE CARGA PROFESIONAL -->
+    <div id="loader-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#07090e]">
+        <div class="relative flex flex-col items-center">
+            <div class="absolute -inset-4 bg-gradient-to-r from-red-600 to-amber-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
+            <h1 class="text-6xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-4 relative z-10">PLMRN</h1>
+            <div class="w-48 h-1 bg-gray-800 rounded-full overflow-hidden relative z-10">
+                <div id="loader-bar" class="w-0 h-full bg-gradient-to-r from-red-500 to-amber-500 transition-all duration-700"></div>
+            </div>
+            <p class="text-xs text-gray-500 uppercase tracking-widest mt-4 relative z-10 font-medium">Cargando experiencia cinematográfica...</p>
+        </div>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="fixed inset-0 z-40 hidden items-center justify-center bg-[#07090e]/90 backdrop-blur-2xl px-4">
+        <div class="glass p-8 rounded-3xl max-w-md w-full text-center shadow-2xl border border-white/10">
+            <h1 class="text-4xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-2">PLMRN</h1>
+            <p class="text-gray-400 mb-6 text-sm">Introduce tu nombre para acceder al portal</p>
+            <input type="text" id="username-input" placeholder="Tu nombre..." class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 mb-4 text-center text-lg transition shadow-inner">
+            <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-red-600/30 transition transform active:scale-95">Entrar al Portal</button>
+        </div>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <header class="glass sticky top-0 z-30 border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goHome()">
+                <span class="text-2xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500">PLMRN</span>
+                <span class="text-xs bg-red-500/15 text-red-400 px-2.5 py-0.5 rounded-full border border-red-500/30 font-semibold">Studio</span>
+            </div>
+            <nav class="flex space-x-2 bg-black/40 p-1.5 rounded-xl border border-white/5">
+                <button onclick="switchTab('shorts')" id="tab-shorts-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md">Cortometrajes</button>
+                <button onclick="switchTab('scripts')" id="tab-scripts-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">Guiones</button>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span id="user-display" class="text-sm font-medium text-gray-300"></span>
+            <button id="admin-add-btn" onclick="openAddModal()" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-red-600/20 flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <span id="admin-add-text">Añadir Corto</span>
+            </button>
+            <button onclick="logout()" class="text-xs text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-800 px-3 py-2 rounded-xl transition border border-gray-700">Salir</button>
+        </div>
+    </header>
+
+    <!-- CONTENT CONTAINER -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
+        
+        <!-- SECCIÓN CORTOMETRAJES -->
+        <div id="shorts-section">
+            <div id="home-view">
+                <div class="mb-8 text-center sm:text-left">
+                    <h2 class="text-3xl font-extrabold text-white tracking-tight">Cortometrajes</h2>
+                    <p class="text-gray-400 text-sm mt-1">Explora las producciones oficiales del canal de YouTube y sus selecciones de festivales.</p>
+                </div>
+                <div id="shorts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- PLAYER VIEW -->
+            <div id="player-view" class="hidden max-w-4xl mx-auto">
+                <button onclick="goHome()" class="mb-6 flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-800 px-4 py-2 rounded-xl transition w-fit border border-gray-700">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    Volver al catálogo
+                </button>
+
+                <div class="space-y-8">
+                    <!-- 1. BLOQUE SUPERIOR -->
+                    <div class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl">
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-white/10 pb-6 mb-6">
+                            <div>
+                                <span class="text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-semibold uppercase tracking-wider mb-2 inline-block">Cortometraje Oficial</span>
+                                <h1 id="player-title" class="text-4xl font-extrabold text-white"></h1>
+                            </div>
+                            <div id="admin-edit-container" class="hidden">
+                                <button id="delete-btn" class="bg-red-900/40 hover:bg-red-900 text-red-300 text-xs font-bold px-4 py-2 rounded-xl border border-red-700/50 transition">Eliminar Corto</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                            <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/40">
+                                <img id="player-poster" src="" alt="Portada" class="w-full h-full object-cover">
+                            </div>
+                            <div class="md:col-span-2 space-y-6">
+                                <div>
+                                    <h3 class="text-sm font-semibold uppercase tracking-wider text-amber-400/90 mb-3 flex items-center gap-2">
+                                        <span>★</span> Festivales y Palmarés
+                                    </h3>
+                                    <div id="player-laurels" class="flex flex-col gap-2"></div>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-2">Sinopsis</h3>
+                                    <p id="player-synopsis" class="text-gray-300 leading-relaxed text-base bg-black/30 p-5 rounded-2xl border border-white/5"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. TRÁILER -->
+                    <div class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="text-red-500">▶</span> ¿Quieres ver el tráiler?
+                            </h3>
+                            <span class="text-xs text-gray-400 bg-black/40 px-3 py-1 rounded-full border border-white/5">Avance Oficial</span>
+                        </div>
+                        <div class="aspect-video w-full bg-black rounded-2xl overflow-hidden shadow-xl border border-white/10">
+                            <iframe id="trailer-iframe" class="w-full h-full" src="" title="Trailer" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <!-- 3. CORTO COMPLETO -->
+                    <div class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span class="text-red-500">🎬</span> ¿Quieres ver el corto?
+                            </h3>
+                            <span class="text-xs text-red-400 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 font-semibold">Película Completa</span>
+                        </div>
+                        <div class="aspect-video w-full bg-black rounded-2xl overflow-hidden shadow-xl border border-white/10">
+                            <iframe id="movie-iframe" class="w-full h-full" src="" title="Cortometraje" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN GUIONES -->
+        <div id="scripts-section" class="hidden">
+            <div class="mb-8 text-center sm:text-left">
+                <h2 class="text-3xl font-extrabold text-white tracking-tight">Guiones</h2>
+                <p class="text-gray-400 text-sm mt-1">Portadas oficiales de guiones literarios y reconocimientos en certámenes.</p>
+            </div>
+            <div id="scripts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </div>
+
+    </main>
+
+    <!-- MODAL AÑADIR (ADMIN) -->
+    <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md px-4 py-6 overflow-y-auto">
+        <div class="glass p-6 sm:p-8 rounded-3xl max-w-lg w-full border border-white/10 shadow-2xl relative my-auto">
+            <h3 id="modal-title-text" class="text-2xl font-bold text-white mb-4">Añadir Nuevo Cortometraje</h3>
+            <form id="add-form" onsubmit="saveItem(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Título</label>
+                    <input type="text" id="form-title" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
+                </div>
+                
+                <!-- EXAMINAR IMAGEN DESDE EL PC -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Imagen / Póster / Portada desde tu PC</label>
+                    <input type="file" id="form-poster-file" accept="image/*" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-white text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-500 cursor-pointer">
+                </div>
+                
+                <div id="short-specific-fields">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Tráiler</label>
+                        <input type="url" id="form-trailer" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                    <div class="mt-4">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Cortometraje Completo</label>
+                        <input type="url" id="form-movie" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Sinopsis</label>
+                    <textarea id="form-synopsis" required rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm"></textarea>
+                </div>
+
+                <!-- FESTIVALES / LAURELES -->
+                <div class="border-t border-white/10 pt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400">Festivales / Laureles</label>
+                        <button type="button" onclick="addLaurelField()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 transition">+ Añadir Festival</button>
+                    </div>
+                    <div id="laurels-inputs-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" onclick="closeAddModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-sm font-semibold transition border border-gray-700">Cancelar</button>
+                    <button type="submit" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-red-600/30">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-6 text-xs text-gray-500 border-t border-white/5 mt-auto">
+        &copy; 2026 Plmrn. Todos los derechos reservados.
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const defaultShorts = [
+            {
+                id: 1,
+                title: "Reflejos Oscuros",
+                poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
+                trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                movie: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                synopsis: "Un joven cineasta descubre que las grabaciones de su última cámara capturan elementos que nunca estuvieron presentes en el set.",
+                laurels: [
+                    { type: "Ganador", name: "Festival de Cine Independiente 2025" },
+                    { type: "Finalista", name: "Certamen de Cortos Marbella" }
+                ]
+            }
+        ];
+
+        const defaultScripts = [
+            {
+                id: 101,
+                title: "El Último fotograma",
+                poster: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop",
+                synopsis: "Guion cinematográfico de suspense sobre un proyeccionista que encuentra mensajes ocultos en películas antiguas.",
+                laurels: [
+                    { type: "Seleccionado", name: "Concurso de Guion Corto 2026" }
+                ]
+            }
+        ];
+
+        let currentUser = localStorage.getItem('plmrn_user');
+        let shorts = JSON.parse(localStorage.getItem('plmrn_shorts')) || defaultShorts;
+        let scripts = JSON.parse(localStorage.getItem('plmrn_scripts')) || defaultScripts;
+        let activeTab = 'shorts';
+
+        window.onload = function() {
+            const loaderBar = document.getElementById('loader-bar');
+            setTimeout(() => { loaderBar.style.width = '60%'; }, 200);
+            setTimeout(() => { loaderBar.style.width = '100%'; }, 600);
+            setTimeout(() => {
+                const loaderScreen = document.getElementById('loader-screen');
+                loaderScreen.style.opacity = '0';
+                setTimeout(() => { loaderScreen.style.display = 'none'; }, 600);
+
+                if (!currentUser) {
+                    document.getElementById('login-screen').classList.remove('hidden');
+                    document.getElementById('login-screen').classList.add('flex');
+                } else {
+                    setupUserInterface();
+                }
+            }, 1000);
+
+            renderShorts();
+            renderScripts();
+        };
+
+        function handleLogin() {
+            const input = document.getElementById('username-input').value.trim();
+            if (!input) return alert("Por favor, introduce un nombre.");
+            currentUser = input;
+            localStorage.setItem('plmrn_user', currentUser);
+            const loginScreen = document.getElementById('login-screen');
+            loginScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                loginScreen.classList.remove('flex', 'opacity-0');
+            }, 300);
+            setupUserInterface();
+        }
+
+        function logout() {
+            localStorage.removeItem('plmrn_user');
+            currentUser = null;
+            location.reload();
+        }
+
+        function setupUserInterface() {
+            document.getElementById('user-display').textContent = `Hola, ${currentUser}`;
+            if (currentUser === 'javierpalaciosadmin') {
+                document.getElementById('admin-add-btn').classList.remove('hidden');
+            }
+            renderShorts();
+            renderScripts();
+        }
+
+        function switchTab(tab) {
+            activeTab = tab;
+            const shortsSec = document.getElementById('shorts-section');
+            const scriptsSec = document.getElementById('scripts-section');
+            const shortsBtn = document.getElementById('tab-shorts-btn');
+            const scriptsBtn = document.getElementById('tab-scripts-btn');
+            const adminBtnText = document.getElementById('admin-add-text');
+
+            if (tab === 'shorts') {
+                shortsSec.classList.remove('hidden');
+                scriptsSec.classList.add('hidden');
+                shortsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md";
+                scriptsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+                adminBtnText.textContent = "Añadir Corto";
+                goHome();
+            } else {
+                shortsSec.classList.add('hidden');
+                scriptsSec.classList.remove('hidden');
+                scriptsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md";
+                shortsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+                adminBtnText.textContent = "Añadir Guion";
+            }
+        }
+
+        function convertYTUrl(url) {
+            if (!url) return '';
+            if (url.includes('/embed/')) return url;
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split('?')[0];
+            } else if (url.includes('watch?v=')) {
+                videoId = url.split('watch?v=')[1].split('&')[0];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+        }
+
+        function renderLaurelsHTML(laurels) {
+            if (!laurels || laurels.length === 0) return '';
+            return `
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                    ${laurels.map(l => `
+                        <span class="laurel-badge text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider flex items-center gap-1">
+                            <span class="text-amber-400">★</span> ${l.type}: ${l.name}
+                        </span>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderShorts() {
+            const grid = document.getElementById('shorts-grid');
+            grid.innerHTML = '';
+
+            shorts.forEach(short => {
+                const card = document.createElement('div');
+                card.className = 'glass rounded-3xl overflow-hidden card-hover border border-white/10 flex flex-col relative';
+                
+                let deleteButtonHTML = '';
+                if (currentUser === 'javierpalaciosadmin') {
+                    deleteButtonHTML = `
+                        <button onclick="deleteShort(${short.id}, event)" class="absolute top-3 right-3 z-20 bg-red-600/80 hover:bg-red-600 text-white p-2 rounded-xl backdrop-blur-md shadow-lg transition border border-red-500/40" title="Eliminar corto">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    ${deleteButtonHTML}
+                    <div class="h-64 overflow-hidden relative group">
+                        <img src="${short.poster}" alt="${short.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-80"></div>
+                        <span class="absolute bottom-3 left-3 text-xs font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-red-400">Cortometraje</span>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-1">${short.title}</h3>
+                            <p class="text-gray-400 text-sm line-clamp-2 mb-3">${short.synopsis}</p>
+                            ${renderLaurelsHTML(short.laurels)}
+                        </div>
+                        <div class="flex items-center gap-3 pt-4 border-t border-white/5 mt-4">
+                            <button onclick="openPlayer(${short.id})" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white text-xs font-bold py-3 px-4 rounded-xl transition shadow-md shadow-red-600/20 text-center">Ver Cortometraje</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderScripts() {
+            const grid = document.getElementById('scripts-grid');
+            grid.innerHTML = '';
+
+            scripts.forEach(script => {
+                const card = document.createElement('div');
+                card.className = 'glass rounded-3xl overflow-hidden card-hover border border-white/10 flex flex-col relative';
+                
+                let deleteButtonHTML = '';
+                if (currentUser === 'javierpalaciosadmin') {
+                    deleteButtonHTML = `
+                        <button onclick="deleteScript(${script.id}, event)" class="absolute top-3 right-3 z-20 bg-red-600/80 hover:bg-red-600 text-white p-2 rounded-xl backdrop-blur-md shadow-lg transition border border-red-500/40" title="Eliminar guion">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    `;
+                }
+
+                card.innerHTML = `
+                    ${deleteButtonHTML}
+                    <div class="h-72 overflow-hidden relative group bg-black/50">
+                        <img src="${script.poster}" alt="${script.title}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-500">
+                        <span class="absolute bottom-3 left-3 text-xs font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-amber-400">Guion Literario</span>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-1">${script.title}</h3>
+                            <p class="text-gray-400 text-sm line-clamp-3 mb-3">${script.synopsis}</p>
+                            ${renderLaurelsHTML(script.laurels)}
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function openPlayer(id) {
+            const short = shorts.find(s => s.id === id);
+            if (!short) return;
+
+            document.getElementById('home-view').classList.add('hidden');
+            document.getElementById('player-view').classList.remove('hidden');
+
+            document.getElementById('player-title').textContent = short.title;
+            document.getElementById('player-poster').src = short.poster;
+            document.getElementById('player-synopsis').textContent = short.synopsis;
+
+            const laurelsContainer = document.getElementById('player-laurels');
+            laurelsContainer.innerHTML = '';
+            if (short.laurels && short.laurels.length > 0) {
+                short.laurels.forEach(l => {
+                    const badge = document.createElement('div');
+                    badge.className = 'laurel-badge p-2.5 rounded-xl text-xs font-bold flex items-center justify-between border border-amber-500/30';
+                    badge.innerHTML = `<span class="flex items-center gap-1.5 text-amber-400">★ <strong>${l.type.toUpperCase()}</strong></span> <span class="text-gray-300 font-normal">${l.name}</span>`;
+                    laurelsContainer.appendChild(badge);
+                });
+            } else {
+                laurelsContainer.innerHTML = '<span class="text-xs text-gray-500 italic">Sin selecciones de festivales registradas.</span>';
+            }
+
+            document.getElementById('trailer-iframe').src = convertYTUrl(short.trailer);
+            document.getElementById('movie-iframe').src = convertYTUrl(short.movie);
+
+            const adminEditContainer = document.getElementById('admin-edit-container');
+            if (currentUser === 'javierpalaciosadmin') {
+                adminEditContainer.classList.remove('hidden');
+                document.getElementById('delete-btn').onclick = function() {
+                    deleteShort(short.id);
+                };
+            } else {
+                adminEditContainer.classList.add('hidden');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goHome() {
+            document.getElementById('player-view').classList.add('hidden');
+            document.getElementById('home-view').classList.remove('hidden');
+            document.getElementById('trailer-iframe').src = ''; 
+            document.getElementById('movie-iframe').src = ''; 
+        }
+
+        function openAddModal() {
+            const modalTitle = document.getElementById('modal-title-text');
+            const shortFields = document.getElementById('short-specific-fields');
+            
+            if (activeTab === 'shorts') {
+                modalTitle.textContent = "Añadir Nuevo Cortometraje";
+                shortFields.classList.remove('hidden');
+                document.getElementById('form-trailer').required = true;
+                document.getElementById('form-movie').required = true;
+            } else {
+                modalTitle.textContent = "Añadir Nuevo Guion";
+                shortFields.classList.add('hidden');
+                document.getElementById('form-trailer').required = false;
+                document.getElementById('form-movie').required = false;
+            }
+
+            document.getElementById('laurels-inputs-container').innerHTML = '';
+            document.getElementById('add-modal').classList.remove('hidden');
+            document.getElementById('add-modal').classList.add('flex');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('add-modal').classList.remove('flex');
+            document.getElementById('add-form').reset();
+        }
+
+        function addLaurelField(typeVal = 'Seleccionado', nameVal = '') {
+            const container = document.getElementById('laurels-inputs-container');
+            const row = document.createElement('div');
+            row.className = 'flex gap-2 items-center laurel-row bg-gray-900/50 p-2 rounded-xl border border-white/5';
+            row.innerHTML = `
+                <select class="laurel-type bg-gray-800 text-amber-400 text-xs font-bold rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none">
+                    <option value="Seleccionado" ${typeVal === 'Seleccionado' ? 'selected' : ''}>Seleccionado</option>
+                    <option value="Finalista" ${typeVal === 'Finalista' ? 'selected' : ''}>Finalista</option>
+                    <option value="Ganador" ${typeVal === 'Ganador' ? 'selected' : ''}>Ganador</option>
+                </select>
+                <input type="text" placeholder="Nombre del Festival..." value="${nameVal}" class="laurel-name flex-grow bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none">
+                <button type="button" onclick="this.parentElement.remove()" class="text-gray-500 hover:text-red-400 px-2 font-bold">&times;</button>
+            `;
+            container.appendChild(row);
+        }
+
+        // GUARDAR CON LECTURA DE IMAGEN DESDE EL PC
+        function saveItem(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('form-poster-file');
+            const file = fileInput.files[0];
+            if (!file) return alert("Por favor, selecciona una imagen.");
+
+            const reader = new FileReader();
+            reader.onload = function(uploadEvent) {
+                const imageBase64 = uploadEvent.target.result;
+
+                const laurels = [];
+                document.querySelectorAll('.laurel-row').forEach(row => {
+                    const type = row.querySelector('.laurel-type.value') ? row.querySelector('.laurel-type').value : row.querySelector('.laurel-type').value;
+                    // Simplificado para capturar correctamente el tipo y nombre
+                    const typeVal = row.querySelector('.laurel-type').value;
+                    const nameVal = row.querySelector('.laurel-name').value.trim();
+                    if (nameVal) laurels.push({ type: typeVal, name: nameVal });
+                });
+
+                if (activeTab === 'shorts') {
+                    const newShort = {
+                        id: Date.now(),
+                        title: document.getElementById('form-title').value,
+                        poster: imageBase64, // Guarda la imagen subida desde el PC
+                        trailer: document.getElementById('form-trailer').value,
+                        movie: document.getElementById('form-movie').value,
+                        synopsis: document.getElementById('form-synopsis').value,
+                        laurels: laurels
+                    };
+                    shorts.push(newShort);
+                    localStorage.setItem('plmrn_shorts', JSON.stringify(shorts));
+                    renderShorts();
+                } else {
+                    const newScript = {
+                        id: Date.now(),
+                        title: document.getElementById('form-title').value,
+                        poster: imageBase64, // Guarda la portada subida desde el PC
+                        synopsis: document.getElementById('form-synopsis').value,
+                        laurels: laurels
+                    };
+                    scripts.push(newScript);
+                    localStorage.setItem('plmrn_scripts', JSON.stringify(scripts));
+                    renderScripts();
+                }
+
+                closeAddModal();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function deleteShort(id, event) {
+            if (event) event.stopPropagation();
+            if (!confirm("¿Seguro que quieres eliminar este cortometraje?")) return;
+            shorts = shorts.filter(s => s.id !== id);
+            localStorage.setItem('plmrn_shorts', JSON.stringify(shorts));
+            renderShorts();
+            goHome();
+        }
+
+        function deleteScript(id, event) {
+            if (event) event.stopPropagation();
+            if (!confirm("¿Seguro que quieres eliminar este guion?")) return;
+            scripts = scripts.filter(s => s.id !== id);
+            localStorage.setItem('plmrn_scripts', JSON.stringify(scripts));
+            renderScripts();
+        }
+    </script>
+</body>
+</html>
