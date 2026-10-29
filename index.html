@@ -136,7 +136,7 @@
                         </div>
                     </div>
 
-                    <!-- 2. TRÁILER (SE OCULTA SI ESTÁ VACÍO) -->
+                    <!-- 2. TRÁILER -->
                     <div id="trailer-container" class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
@@ -149,7 +149,7 @@
                         </div>
                     </div>
 
-                    <!-- 3. CORTO COMPLETO (SE OCULTA SI ESTÁ VACÍO) -->
+                    <!-- 3. CORTO COMPLETO -->
                     <div id="movie-container" class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
@@ -187,9 +187,9 @@
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL de la Imagen / Póster o Portada</label>
-                    <input type="url" id="form-poster" required placeholder="https://..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
-                    <span class="text-[10px] text-gray-500 mt-1 block">💡 Pega un enlace directo a la imagen de tu póster para que cargue al instante y sin límites.</span>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Nombre de la Imagen en GitHub (ej: muriel.jpg)</label>
+                    <input type="text" id="form-poster" required placeholder="muriel.jpg" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
+                    <span class="text-[10px] text-gray-500 mt-1 block">💡 Sube tu imagen a la misma carpeta del repositorio en GitHub y escribe aquí exactamente su nombre y extensión.</span>
                 </div>
                 
                 <div id="short-specific-fields" class="space-y-4">
@@ -561,7 +561,7 @@
                 const newShort = {
                     id: Date.now(),
                     title: document.getElementById('form-title').value.trim(),
-                    poster: document.getElementById('form-poster').value.trim(),
+                    poster: document.getElementById('form-poster').value.trim(), // Aquí pones directamente el nombre de la imagen (ej: muriel.jpg)
                     trailer: document.getElementById('form-trailer').value.trim(),
                     movie: document.getElementById('form-movie').value.trim(),
                     synopsis: document.getElementById('form-synopsis').value.trim(),
