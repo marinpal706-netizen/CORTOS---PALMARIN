@@ -167,7 +167,8 @@
             {
                 id: 1,
                 title: "Obsession 2",
-                poster: "obsession.png",
+                thumbnail: "OBSESSIONH.png", // <--- Imagen HORIZONTAL para el menú principal
+                poster: "obsession.png",        // <--- Póster VERTICAL para dentro del corto
                 trailer: "https://youtu.be/jwrhwtHvAKQ",
                 movie: "",
                 synopsis: "Vuelve el terror psicológico con la secuela de Obsession. Luis solo quería que Carmen no se fuera, pero al pedir un deseo prohibido, el amor se ha convertido en una pesadilla sangrienta de la que nadie sale vivo.",
@@ -176,7 +177,8 @@
             {
                 id: 2,
                 title: "LOOPER",
-                poster: "LOOPER.png",
+                thumbnail: "LOOPERH.png",    // <--- Imagen HORIZONTAL para el menú principal
+                poster: "LOOPER.png",           // <--- Póster VERTICAL para dentro del corto
                 trailer: "https://youtu.be/Oq3WvwN5hwg",
                 movie: "https://youtu.be/aYMR9QImSBM",
                 synopsis: "Atrapado en un bucle de tensión y silencio, un hombre con la boca sellada y las manos manchadas de sangre se enfrenta a una presencia enmascarada en una azotea desolada.",
@@ -185,7 +187,8 @@
             {
                 id: 3,
                 title: "SONORO parte 1 y parte 2",
-                poster: "SONORO.png",
+                thumbnail: "SONOROH.png",    // <--- Imagen HORIZONTAL para el menú principal
+                poster: "SONORO.png",           // <--- Póster VERTICAL para dentro del corto
                 trailer: "",
                 movie: "https://youtu.be/i885vW4GWgA",
                 synopsis: "Unos auriculares y un cable aparentemente inofensivos se convierten en la peor pesadilla de un joven en su propia casa.",
@@ -197,7 +200,8 @@
             {
                 id: 4,
                 title: "BELOW",
-                poster: "BELOW.png",
+                thumbnail: "BELOWH.png",    // <--- Imagen HORIZONTAL para el menú principal
+                poster: "BELOW.png",           // <--- Póster VERTICAL para dentro del corto
                 trailer: "https://youtu.be/fnF0reh733Y",
                 movie: "https://youtu.be/Bx_djthAw_s",
                 synopsis: "¿Qué se esconde justo debajo de tus pies cuando crees que estás a salvo en casa? Una atmósfera claustrofóbica, golpes secos en la oscuridad y una tensión insoportable.",
@@ -311,8 +315,8 @@
                 const card = document.createElement('div');
                 card.className = 'glass rounded-3xl overflow-hidden card-hover border border-white/10 flex flex-col relative';
                 card.innerHTML = `
-                    <div class="h-64 overflow-hidden relative group">
-                        <img src="${short.poster}" alt="${short.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                    <div class="aspect-video overflow-hidden relative group">
+                        <img src="${short.thumbnail}" alt="${short.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-80"></div>
                         <span class="absolute bottom-3 left-3 text-xs font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-red-400">Cortometraje</span>
                     </div>
@@ -363,7 +367,7 @@
             document.getElementById('player-view').classList.remove('hidden');
 
             document.getElementById('player-title').textContent = short.title;
-            document.getElementById('player-poster').src = short.poster;
+            document.getElementById('player-poster').src = short.poster; // Aquí carga el póster vertical dentro de la ficha
             
             const synopsisBox = document.getElementById('synopsis-box');
             if (short.synopsis && short.synopsis.trim() !== '') {
