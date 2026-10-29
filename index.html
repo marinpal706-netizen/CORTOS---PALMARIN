@@ -97,7 +97,7 @@
                 <div id="shorts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
-            <!-- PLAYER VIEW (DINÁMICO SEGÚN LO QUE HAYA) -->
+            <!-- PLAYER VIEW -->
             <div id="player-view" class="hidden max-w-4xl mx-auto">
                 <button onclick="goHome()" class="mb-6 flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-800 px-4 py-2 rounded-xl transition w-fit border border-gray-700">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
@@ -128,7 +128,7 @@
                                     </h3>
                                     <div id="player-laurels" class="flex flex-col gap-2"></div>
                                 </div>
-                                <div>
+                                <div id="synopsis-box">
                                     <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-2">Sinopsis</h3>
                                     <p id="player-synopsis" class="text-gray-300 leading-relaxed text-base bg-black/30 p-5 rounded-2xl border border-white/5"></p>
                                 </div>
@@ -136,7 +136,7 @@
                         </div>
                     </div>
 
-                    <!-- 2. TRÁILER (SE OCULTA SI NO HAY URL) -->
+                    <!-- 2. TRÁILER (SE OCULTA SI ESTÁ VACÍO) -->
                     <div id="trailer-container" class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
@@ -149,7 +149,7 @@
                         </div>
                     </div>
 
-                    <!-- 3. CORTO COMPLETO (SE OCULTA SI NO HAY URL) -->
+                    <!-- 3. CORTO COMPLETO (SE OCULTA SI ESTÁ VACÍO) -->
                     <div id="movie-container" class="glass p-6 md:p-8 rounded-3xl border border-white/10 shadow-2xl hidden">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xl font-bold text-white flex items-center gap-2">
@@ -187,8 +187,9 @@
                 </div>
                 
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Imagen / Póster / Portada desde tu PC</label>
-                    <input type="file" id="form-poster-file" accept="image/*" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-3 py-2 text-white text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-red-600 file:text-white hover:file:bg-red-500 cursor-pointer">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL de la Imagen / Póster o Portada</label>
+                    <input type="url" id="form-poster" required placeholder="https://..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
+                    <span class="text-[10px] text-gray-500 mt-1 block">💡 Pega un enlace directo a la imagen de tu póster para que cargue al instante y sin límites.</span>
                 </div>
                 
                 <div id="short-specific-fields" class="space-y-4">
@@ -203,14 +204,14 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Sinopsis</label>
-                    <textarea id="form-synopsis" required rows="3" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm"></textarea>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Sinopsis <span class="text-gray-500 normal-case">(Opcional)</span></label>
+                    <textarea id="form-synopsis" rows="3" placeholder="Escribe la sinopsis o déjalo en blanco..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm"></textarea>
                 </div>
 
                 <!-- FESTIVALES / LAURELES -->
                 <div class="border-t border-white/10 pt-4">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400">Festivales / Laureles</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400">Festivales / Laureles <span class="text-gray-500 normal-case">(Opcional)</span></label>
                         <button type="button" onclick="addLaurelField()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 transition">+ Añadir Festival</button>
                     </div>
                     <div id="laurels-inputs-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
@@ -389,7 +390,7 @@
                     <div class="p-6 flex flex-col flex-grow justify-between">
                         <div>
                             <h3 class="text-xl font-bold text-white mb-1">${short.title}</h3>
-                            <p class="text-gray-400 text-sm line-clamp-2 mb-3">${short.synopsis}</p>
+                            <p class="text-gray-400 text-sm line-clamp-2 mb-3">${short.synopsis || 'Sin sinopsis disponible.'}</p>
                             ${renderLaurelsHTML(short.laurels)}
                         </div>
                         <div class="flex items-center gap-3 pt-4 border-t border-white/5 mt-4">
@@ -427,7 +428,7 @@
                     <div class="p-6 flex flex-col flex-grow justify-between">
                         <div>
                             <h3 class="text-xl font-bold text-white mb-1">${script.title}</h3>
-                            <p class="text-gray-400 text-sm line-clamp-3 mb-3">${script.synopsis}</p>
+                            <p class="text-gray-400 text-sm line-clamp-3 mb-3">${script.synopsis || 'Sin sinopsis disponible.'}</p>
                             ${renderLaurelsHTML(script.laurels)}
                         </div>
                     </div>
@@ -445,7 +446,14 @@
 
             document.getElementById('player-title').textContent = short.title;
             document.getElementById('player-poster').src = short.poster;
-            document.getElementById('player-synopsis').textContent = short.synopsis;
+            
+            const synopsisBox = document.getElementById('synopsis-box');
+            if (short.synopsis && short.synopsis.trim() !== '') {
+                document.getElementById('player-synopsis').textContent = short.synopsis;
+                synopsisBox.classList.remove('hidden');
+            } else {
+                synopsisBox.classList.add('hidden');
+            }
 
             const laurelsContainer = document.getElementById('player-laurels');
             laurelsContainer.innerHTML = '';
@@ -460,7 +468,6 @@
                 laurelsContainer.innerHTML = '<span class="text-xs text-gray-500 italic">Sin selecciones de festivales registradas.</span>';
             }
 
-            // GESTIÓN DINÁMICA DE TRÁILER E IFRAME DEL CORTO (SE OCULTAN SI ESTÁN VACÍOS)
             const trailerContainer = document.getElementById('trailer-container');
             const trailerIframe = document.getElementById('trailer-iframe');
             if (short.trailer && short.trailer.trim() !== '') {
@@ -543,50 +550,40 @@
         function saveItem(e) {
             e.preventDefault();
             
-            const fileInput = document.getElementById('form-poster-file');
-            const file = fileInput.files[0];
-            if (!file) return alert("Por favor, selecciona una imagen.");
+            const laurels = [];
+            document.querySelectorAll('.laurel-row').forEach(row => {
+                const typeVal = row.querySelector('.laurel-type').value;
+                const nameVal = row.querySelector('.laurel-name').value.trim();
+                if (nameVal) laurels.push({ type: typeVal, name: nameVal });
+            });
 
-            const reader = new FileReader();
-            reader.onload = function(uploadEvent) {
-                const imageBase64 = uploadEvent.target.result;
+            if (activeTab === 'shorts') {
+                const newShort = {
+                    id: Date.now(),
+                    title: document.getElementById('form-title').value.trim(),
+                    poster: document.getElementById('form-poster').value.trim(),
+                    trailer: document.getElementById('form-trailer').value.trim(),
+                    movie: document.getElementById('form-movie').value.trim(),
+                    synopsis: document.getElementById('form-synopsis').value.trim(),
+                    laurels: laurels
+                };
+                shorts.push(newShort);
+                localStorage.setItem('plmrn_shorts', JSON.stringify(shorts));
+                renderShorts();
+            } else {
+                const newScript = {
+                    id: Date.now(),
+                    title: document.getElementById('form-title').value.trim(),
+                    poster: document.getElementById('form-poster').value.trim(),
+                    synopsis: document.getElementById('form-synopsis').value.trim(),
+                    laurels: laurels
+                };
+                scripts.push(newScript);
+                localStorage.setItem('plmrn_scripts', JSON.stringify(scripts));
+                renderScripts();
+            }
 
-                const laurels = [];
-                document.querySelectorAll('.laurel-row').forEach(row => {
-                    const typeVal = row.querySelector('.laurel-type').value;
-                    const nameVal = row.querySelector('.laurel-name').value.trim();
-                    if (nameVal) laurels.push({ type: typeVal, name: nameVal });
-                });
-
-                if (activeTab === 'shorts') {
-                    const newShort = {
-                        id: Date.now(),
-                        title: document.getElementById('form-title').value,
-                        poster: imageBase64,
-                        trailer: document.getElementById('form-trailer').value.trim(),
-                        movie: document.getElementById('form-movie').value.trim(),
-                        synopsis: document.getElementById('form-synopsis').value,
-                        laurels: laurels
-                    };
-                    shorts.push(newShort);
-                    localStorage.setItem('plmrn_shorts', JSON.stringify(shorts));
-                    renderShorts();
-                } else {
-                    const newScript = {
-                        id: Date.now(),
-                        title: document.getElementById('form-title').value,
-                        poster: imageBase64,
-                        synopsis: document.getElementById('form-synopsis').value,
-                        laurels: laurels
-                    };
-                    scripts.push(newScript);
-                    localStorage.setItem('plmrn_scripts', JSON.stringify(scripts));
-                    renderScripts();
-                }
-
-                closeAddModal();
-            };
-            reader.readAsDataURL(file);
+            closeAddModal();
         }
 
         function deleteShort(id, event) {
