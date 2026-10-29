@@ -36,7 +36,7 @@
     <!-- FONDO DINÁMICO -->
     <div class="ambient-bg"></div>
 
-    <!-- PANTALLA DE LOGIN (PIDE EL NOMBRE DIRECTAMENTE) -->
+    <!-- PANTALLA DE LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-40 hidden items-center justify-center bg-[#07090e]/95 backdrop-blur-2xl px-4">
         <div class="glass p-8 rounded-3xl max-w-md w-full text-center shadow-2xl border border-white/10">
             <h1 class="text-4xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-2">PLMRN</h1>
@@ -160,11 +160,14 @@
 
     <!-- JAVASCRIPT -->
     <script>
+        // ==========================================
+        // 🎬 TUS CORTOMETRAJES
+        // ==========================================
         const shorts = [
             {
                 id: 1,
                 title: "Obsession 2",
-                poster: "obsession.jpg",
+                poster: "obsession.png",
                 trailer: "https://youtu.be/jwrhwtHvAKQ",
                 movie: "",
                 synopsis: "Vuelve el terror psicológico con la secuela de Obsession. Luis solo quería que Carmen no se fuera, pero al pedir un deseo prohibido, el amor se ha convertido en una pesadilla sangrienta de la que nadie sale vivo.",
@@ -173,7 +176,7 @@
             {
                 id: 2,
                 title: "LOOPER",
-                poster: "LOOPER.jpg",
+                poster: "LOOPER.png",
                 trailer: "https://youtu.be/Oq3WvwN5hwg",
                 movie: "https://youtu.be/aYMR9QImSBM",
                 synopsis: "Atrapado en un bucle de tensión y silencio, un hombre con la boca sellada y las manos manchadas de sangre se enfrenta a una presencia enmascarada en una azotea desolada.",
@@ -182,7 +185,7 @@
             {
                 id: 3,
                 title: "SONORO parte 1 y parte 2",
-                poster: "SONORO.jpg",
+                poster: "SONORO.png",
                 trailer: "",
                 movie: "https://youtu.be/i885vW4GWgA",
                 synopsis: "Unos auriculares y un cable aparentemente inofensivos se convierten en la peor pesadilla de un joven en su propia casa.",
@@ -194,14 +197,18 @@
             {
                 id: 4,
                 title: "BELOW",
-                poster: "BELOW.jpg",
+                poster: "BELOW.png",
                 trailer: "https://youtu.be/fnF0reh733Y",
                 movie: "https://youtu.be/Bx_djthAw_s",
                 synopsis: "¿Qué se esconde justo debajo de tus pies cuando crees que estás a salvo en casa? Una atmósfera claustrofóbica, golpes secos en la oscuridad y una tensión insoportable.",
                 laurels: []
             }
+            // 👉 PARA AÑADIR OTRO CORTO, COPIA DESDE EL CORCHETE '{' HASTA '},' Y CAMBIA EL ID (ej: id: 5):
         ];
 
+        // ==========================================
+        // 📝 TUS GUIONES
+        // ==========================================
         const scripts = [
             {
                 id: 101,
@@ -212,6 +219,7 @@
                     { type: "Seleccionado", name: "Concurso de Guion Corto 2026" }
                 ]
             }
+            // 👉 PARA AÑADIR OTRO GUION, COPIA DESDE EL CORCHETE '{' HASTA '},' Y CAMBIA EL ID (ej: id: 102):
         ];
 
         let currentUser = localStorage.getItem('plmrn_user');
