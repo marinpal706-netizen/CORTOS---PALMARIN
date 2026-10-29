@@ -29,10 +29,6 @@
             border: 1px solid rgba(212, 175, 55, 0.35);
             color: #fbbf24;
         }
-
-        #loader-screen {
-            transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
@@ -40,15 +36,13 @@
     <!-- FONDO DINÁMICO -->
     <div class="ambient-bg"></div>
 
-    <!-- PANTALLA DE CARGA PROFESIONAL -->
-    <div id="loader-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#07090e]">
-        <div class="relative flex flex-col items-center">
-            <div class="absolute -inset-4 bg-gradient-to-r from-red-600 to-amber-500 rounded-full blur-xl opacity-20 animate-pulse"></div>
-            <h1 class="text-6xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-4 relative z-10">PLMRN</h1>
-            <div class="w-48 h-1 bg-gray-800 rounded-full overflow-hidden relative z-10">
-                <div id="loader-bar" class="w-0 h-full bg-gradient-to-r from-red-500 to-amber-500 transition-all duration-700"></div>
-            </div>
-            <p class="text-xs text-gray-500 uppercase tracking-widest mt-4 relative z-10 font-medium">Cargando experiencia cinematográfica...</p>
+    <!-- PANTALLA DE LOGIN (PIDE EL NOMBRE DIRECTAMENTE) -->
+    <div id="login-screen" class="fixed inset-0 z-40 hidden items-center justify-center bg-[#07090e]/95 backdrop-blur-2xl px-4">
+        <div class="glass p-8 rounded-3xl max-w-md w-full text-center shadow-2xl border border-white/10">
+            <h1 class="text-4xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-2">PLMRN</h1>
+            <p class="text-gray-400 mb-6 text-sm">Introduce tu nombre para acceder al portal</p>
+            <input type="text" id="username-input" placeholder="Tu nombre..." class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 mb-4 text-center text-lg transition shadow-inner">
+            <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-red-600/30 transition transform active:scale-95">Entrar al Portal</button>
         </div>
     </div>
 
@@ -63,6 +57,10 @@
                 <button onclick="switchTab('shorts')" id="tab-shorts-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md">Cortometrajes</button>
                 <button onclick="switchTab('scripts')" id="tab-scripts-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">Guiones</button>
             </nav>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span id="user-display" class="text-sm font-medium text-gray-300"></span>
+            <button onclick="logout()" class="text-xs text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-800 px-3 py-2 rounded-xl transition border border-gray-700">Cambiar de nombre</button>
         </div>
     </header>
 
@@ -216,21 +214,40 @@
             }
         ];
 
+        let currentUser = localStorage.getItem('plmrn_user');
         let activeTab = 'shorts';
 
         window.onload = function() {
-            const loaderBar = document.getElementById('loader-bar');
-            setTimeout(() => { loaderBar.style.width = '60%'; }, 200);
-            setTimeout(() => { loaderBar.style.width = '100%'; }, 600);
-            setTimeout(() => {
-                const loaderScreen = document.getElementById('loader-screen');
-                loaderScreen.style.opacity = '0';
-                setTimeout(() => { loaderScreen.style.display = 'none'; }, 600);
-            }, 1000);
+            if (!currentUser) {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('login-screen').classList.add('flex');
+            } else {
+                document.getElementById('user-display').textContent = `Hola, ${currentUser}`;
+            }
 
             renderShorts();
             renderScripts();
         };
+
+        function handleLogin() {
+            const input = document.getElementById('username-input').value.trim();
+            if (!input) return alert("Por favor, introduce un nombre.");
+            currentUser = input;
+            localStorage.setItem('plmrn_user', currentUser);
+            
+            document.getElementById('user-display').textContent = `Hola, ${currentUser}`;
+            const loginScreen = document.getElementById('login-screen');
+            loginScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                loginScreen.classList.remove('flex', 'opacity-0');
+            }, 300);
+        }
+
+        function logout() {
+            localStorage.removeItem('plmrn_user');
+            location.reload();
+        }
 
         function switchTab(tab) {
             activeTab = tab;
