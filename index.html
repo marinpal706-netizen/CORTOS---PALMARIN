@@ -52,16 +52,6 @@
         </div>
     </div>
 
-    <!-- LOGIN SCREEN -->
-    <div id="login-screen" class="fixed inset-0 z-40 hidden items-center justify-center bg-[#07090e]/90 backdrop-blur-2xl px-4">
-        <div class="glass p-8 rounded-3xl max-w-md w-full text-center shadow-2xl border border-white/10">
-            <h1 class="text-4xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-amber-500 mb-2">PLMRN</h1>
-            <p class="text-gray-400 mb-6 text-sm">Introduce tu nombre para acceder al portal</p>
-            <input type="text" id="username-input" placeholder="Tu nombre..." class="w-full bg-gray-900/90 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-red-500 mb-4 text-center text-lg transition shadow-inner">
-            <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-red-600/30 transition transform active:scale-95">Entrar al Portal</button>
-        </div>
-    </div>
-
     <!-- MAIN NAVBAR -->
     <header class="glass sticky top-0 z-30 border-b border-white/10 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
         <div class="flex items-center space-x-6">
@@ -73,14 +63,6 @@
                 <button onclick="switchTab('shorts')" id="tab-shorts-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md">Cortometrajes</button>
                 <button onclick="switchTab('scripts')" id="tab-scripts-btn" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">Guiones</button>
             </nav>
-        </div>
-        <div class="flex items-center space-x-4">
-            <span id="user-display" class="text-sm font-medium text-gray-300"></span>
-            <button id="admin-add-btn" onclick="openAddModal()" class="hidden bg-red-600 hover:bg-red-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition shadow-lg shadow-red-600/20 flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                <span id="admin-add-text">Añadir Corto</span>
-            </button>
-            <button onclick="logout()" class="text-xs text-gray-400 hover:text-white bg-gray-800/60 hover:bg-gray-800 px-3 py-2 rounded-xl transition border border-gray-700">Salir</button>
         </div>
     </header>
 
@@ -111,9 +93,6 @@
                             <div>
                                 <span class="text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 font-semibold uppercase tracking-wider mb-2 inline-block">Cortometraje Oficial</span>
                                 <h1 id="player-title" class="text-4xl font-extrabold text-white"></h1>
-                            </div>
-                            <div id="admin-edit-container" class="hidden">
-                                <button id="delete-btn" class="bg-red-900/40 hover:bg-red-900 text-red-300 text-xs font-bold px-4 py-2 rounded-xl border border-red-700/50 transition">Eliminar Corto</button>
                             </div>
                         </div>
 
@@ -176,92 +155,48 @@
 
     </main>
 
-    <!-- MODAL AÑADIR (ADMIN) -->
-    <div id="add-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md px-4 py-6 overflow-y-auto">
-        <div class="glass p-6 sm:p-8 rounded-3xl max-w-lg w-full border border-white/10 shadow-2xl relative my-auto">
-            <h3 id="modal-title-text" class="text-2xl font-bold text-white mb-4">Añadir Nuevo Cortometraje</h3>
-            <form id="add-form" onsubmit="saveItem(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Título</label>
-                    <input type="text" id="form-title" required class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Nombre de la Imagen en GitHub (ej: muriel.jpg)</label>
-                    <input type="text" id="form-poster" required placeholder="muriel.jpg" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
-                    <span class="text-[10px] text-gray-500 mt-1 block">💡 Sube tu imagen a la misma carpeta del repositorio en GitHub y escribe aquí exactamente su nombre y extensión.</span>
-                </div>
-                
-                <div id="short-specific-fields" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Tráiler <span class="text-gray-500 normal-case">(Opcional)</span></label>
-                        <input type="url" id="form-trailer" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">URL YouTube del Cortometraje Completo <span class="text-gray-500 normal-case">(Opcional)</span></label>
-                        <input type="url" id="form-movie" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Sinopsis <span class="text-gray-500 normal-case">(Opcional)</span></label>
-                    <textarea id="form-synopsis" rows="3" placeholder="Escribe la sinopsis o déjalo en blanco..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-red-500 text-sm"></textarea>
-                </div>
-
-                <!-- FESTIVALES / LAURELES -->
-                <div class="border-t border-white/10 pt-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-amber-400">Festivales / Laureles <span class="text-gray-500 normal-case">(Opcional)</span></label>
-                        <button type="button" onclick="addLaurelField()" class="text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/30 transition">+ Añadir Festival</button>
-                    </div>
-                    <div id="laurels-inputs-container" class="space-y-2 max-h-40 overflow-y-auto pr-1"></div>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-3">
-                    <button type="button" onclick="closeAddModal()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-xl text-sm font-semibold transition border border-gray-700">Cancelar</button>
-                    <button type="submit" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-xl text-sm font-bold transition shadow-lg shadow-red-600/30">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- FOOTER -->
     <footer class="text-center py-6 text-xs text-gray-500 border-t border-white/5 mt-auto">
         &copy; 2026 Plmrn. Todos los derechos reservados.
     </footer>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT: AQUÍ AÑADES TUS CORTOS Y GUIONES -->
     <script>
-        const defaultShorts = [
+        // ==========================================
+        // 🎬 TUS CORTOMETRAJES (AÑADE AQUÍ LOS NUEVOS)
+        // ==========================================
+        const shorts = [
             {
                 id: 1,
                 title: "Reflejos Oscuros",
-                poster: "https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop",
-                trailer: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-                movie: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+                poster: "muriel.jpg", // <--- Pon aquí el nombre de la imagen que subas a GitHub
+                trailer: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // O déjalo en "" si no tiene
+                movie: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", // O déjalo en "" si no tiene
                 synopsis: "Un joven cineasta descubre que las grabaciones de su última cámara capturan elementos que nunca estuvieron presentes en el set.",
                 laurels: [
                     { type: "Ganador", name: "Festival de Cine Independiente 2025" },
                     { type: "Finalista", name: "Certamen de Cortos Marbella" }
                 ]
             }
+            // 👉 PARA AÑADIR OTRO CORTO, COPIA DESDE EL CORCHETE '{' HASTA AQUí '},' Y PÉGALO ABAJO:
         ];
 
-        const defaultScripts = [
+        // ==========================================
+        // 📝 TUS GUIONES (AÑADE AQUÍ LOS NUEVOS)
+        // ==========================================
+        const scripts = [
             {
                 id: 101,
                 title: "El Último fotograma",
-                poster: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=800&auto=format&fit=crop",
-                synopsis: "Guion cinematográfico de suspense sobre un proyeccionista que encuentra mensajes ocultos en películas antiguas.",
+                poster: "portadaguion.jpg", // <--- Nombre de la imagen del guion en GitHub
+                synopsis: "Guion cinematográfico de suspense sobre un proyeccionista.",
                 laurels: [
                     { type: "Seleccionado", name: "Concurso de Guion Corto 2026" }
                 ]
             }
+            // 👉 PARA AÑADIR OTRO GUION, COPIA DESDE EL CORCHETE '{' HASTA AQUí '},' Y PÉGALO ABAJO:
         ];
 
-        let currentUser = localStorage.getItem('plmrn_user');
-        let shorts = JSON.parse(localStorage.getItem('plmrn_shorts')) || defaultShorts;
-        let scripts = JSON.parse(localStorage.getItem('plmrn_scripts')) || defaultScripts;
         let activeTab = 'shorts';
 
         window.onload = function() {
@@ -272,47 +207,11 @@
                 const loaderScreen = document.getElementById('loader-screen');
                 loaderScreen.style.opacity = '0';
                 setTimeout(() => { loaderScreen.style.display = 'none'; }, 600);
-
-                if (!currentUser) {
-                    document.getElementById('login-screen').classList.remove('hidden');
-                    document.getElementById('login-screen').classList.add('flex');
-                } else {
-                    setupUserInterface();
-                }
             }, 1000);
 
             renderShorts();
             renderScripts();
         };
-
-        function handleLogin() {
-            const input = document.getElementById('username-input').value.trim();
-            if (!input) return alert("Por favor, introduce un nombre.");
-            currentUser = input;
-            localStorage.setItem('plmrn_user', currentUser);
-            const loginScreen = document.getElementById('login-screen');
-            loginScreen.classList.add('opacity-0');
-            setTimeout(() => {
-                loginScreen.classList.add('hidden');
-                loginScreen.classList.remove('flex', 'opacity-0');
-            }, 300);
-            setupUserInterface();
-        }
-
-        function logout() {
-            localStorage.removeItem('plmrn_user');
-            currentUser = null;
-            location.reload();
-        }
-
-        function setupUserInterface() {
-            document.getElementById('user-display').textContent = `Hola, ${currentUser}`;
-            if (currentUser === 'javierpalaciosadmin') {
-                document.getElementById('admin-add-btn').classList.remove('hidden');
-            }
-            renderShorts();
-            renderScripts();
-        }
 
         function switchTab(tab) {
             activeTab = tab;
@@ -320,21 +219,18 @@
             const scriptsSec = document.getElementById('scripts-section');
             const shortsBtn = document.getElementById('tab-shorts-btn');
             const scriptsBtn = document.getElementById('tab-scripts-btn');
-            const adminBtnText = document.getElementById('admin-add-text');
 
             if (tab === 'shorts') {
                 shortsSec.classList.remove('hidden');
                 scriptsSec.classList.add('hidden');
                 shortsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md";
                 scriptsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
-                adminBtnText.textContent = "Añadir Corto";
                 goHome();
             } else {
                 shortsSec.classList.add('hidden');
                 scriptsSec.classList.remove('hidden');
                 scriptsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition bg-red-600 text-white shadow-md";
                 shortsBtn.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
-                adminBtnText.textContent = "Añadir Guion";
             }
         }
 
@@ -370,18 +266,7 @@
             shorts.forEach(short => {
                 const card = document.createElement('div');
                 card.className = 'glass rounded-3xl overflow-hidden card-hover border border-white/10 flex flex-col relative';
-                
-                let deleteButtonHTML = '';
-                if (currentUser === 'javierpalaciosadmin') {
-                    deleteButtonHTML = `
-                        <button onclick="deleteShort(${short.id}, event)" class="absolute top-3 right-3 z-20 bg-red-600/80 hover:bg-red-600 text-white p-2 rounded-xl backdrop-blur-md shadow-lg transition border border-red-500/40" title="Eliminar corto">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    `;
-                }
-
                 card.innerHTML = `
-                    ${deleteButtonHTML}
                     <div class="h-64 overflow-hidden relative group">
                         <img src="${short.poster}" alt="${short.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute inset-0 bg-gradient-to-t from-[#07090e] via-transparent to-transparent opacity-80"></div>
@@ -409,18 +294,7 @@
             scripts.forEach(script => {
                 const card = document.createElement('div');
                 card.className = 'glass rounded-3xl overflow-hidden card-hover border border-white/10 flex flex-col relative';
-                
-                let deleteButtonHTML = '';
-                if (currentUser === 'javierpalaciosadmin') {
-                    deleteButtonHTML = `
-                        <button onclick="deleteScript(${script.id}, event)" class="absolute top-3 right-3 z-20 bg-red-600/80 hover:bg-red-600 text-white p-2 rounded-xl backdrop-blur-md shadow-lg transition border border-red-500/40" title="Eliminar guion">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    `;
-                }
-
                 card.innerHTML = `
-                    ${deleteButtonHTML}
                     <div class="h-72 overflow-hidden relative group bg-black/50">
                         <img src="${script.poster}" alt="${script.title}" class="w-full h-full object-contain p-2 group-hover:scale-105 transition duration-500">
                         <span class="absolute bottom-3 left-3 text-xs font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-amber-400">Guion Literario</span>
@@ -488,16 +362,6 @@
                 movieContainer.classList.add('hidden');
             }
 
-            const adminEditContainer = document.getElementById('admin-edit-container');
-            if (currentUser === 'javierpalaciosadmin') {
-                adminEditContainer.classList.remove('hidden');
-                document.getElementById('delete-btn').onclick = function() {
-                    deleteShort(short.id);
-                };
-            } else {
-                adminEditContainer.classList.add('hidden');
-            }
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -506,101 +370,6 @@
             document.getElementById('home-view').classList.remove('hidden');
             document.getElementById('trailer-iframe').src = ''; 
             document.getElementById('movie-iframe').src = ''; 
-        }
-
-        function openAddModal() {
-            const modalTitle = document.getElementById('modal-title-text');
-            const shortFields = document.getElementById('short-specific-fields');
-            
-            if (activeTab === 'shorts') {
-                modalTitle.textContent = "Añadir Nuevo Cortometraje";
-                shortFields.classList.remove('hidden');
-            } else {
-                modalTitle.textContent = "Añadir Nuevo Guion";
-                shortFields.classList.add('hidden');
-            }
-
-            document.getElementById('laurels-inputs-container').innerHTML = '';
-            document.getElementById('add-modal').classList.remove('hidden');
-            document.getElementById('add-modal').classList.add('flex');
-        }
-
-        function closeAddModal() {
-            document.getElementById('add-modal').classList.add('hidden');
-            document.getElementById('add-modal').classList.remove('flex');
-            document.getElementById('add-form').reset();
-        }
-
-        function addLaurelField(typeVal = 'Seleccionado', nameVal = '') {
-            const container = document.getElementById('laurels-inputs-container');
-            const row = document.createElement('div');
-            row.className = 'flex gap-2 items-center laurel-row bg-gray-900/50 p-2 rounded-xl border border-white/5';
-            row.innerHTML = `
-                <select class="laurel-type bg-gray-800 text-amber-400 text-xs font-bold rounded-lg px-2 py-1.5 border border-gray-700 focus:outline-none">
-                    <option value="Seleccionado" ${typeVal === 'Seleccionado' ? 'selected' : ''}>Seleccionado</option>
-                    <option value="Finalista" ${typeVal === 'Finalista' ? 'selected' : ''}>Finalista</option>
-                    <option value="Ganador" ${typeVal === 'Ganador' ? 'selected' : ''}>Ganador</option>
-                </select>
-                <input type="text" placeholder="Nombre del Festival..." value="${nameVal}" class="laurel-name flex-grow bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none">
-                <button type="button" onclick="this.parentElement.remove()" class="text-gray-500 hover:text-red-400 px-2 font-bold">&times;</button>
-            `;
-            container.appendChild(row);
-        }
-
-        function saveItem(e) {
-            e.preventDefault();
-            
-            const laurels = [];
-            document.querySelectorAll('.laurel-row').forEach(row => {
-                const typeVal = row.querySelector('.laurel-type').value;
-                const nameVal = row.querySelector('.laurel-name').value.trim();
-                if (nameVal) laurels.push({ type: typeVal, name: nameVal });
-            });
-
-            if (activeTab === 'shorts') {
-                const newShort = {
-                    id: Date.now(),
-                    title: document.getElementById('form-title').value.trim(),
-                    poster: document.getElementById('form-poster').value.trim(), // Aquí pones directamente el nombre de la imagen (ej: muriel.jpg)
-                    trailer: document.getElementById('form-trailer').value.trim(),
-                    movie: document.getElementById('form-movie').value.trim(),
-                    synopsis: document.getElementById('form-synopsis').value.trim(),
-                    laurels: laurels
-                };
-                shorts.push(newShort);
-                localStorage.setItem('plmrn_shorts', JSON.stringify(shorts));
-                renderShorts();
-            } else {
-                const newScript = {
-                    id: Date.now(),
-                    title: document.getElementById('form-title').value.trim(),
-                    poster: document.getElementById('form-poster').value.trim(),
-                    synopsis: document.getElementById('form-synopsis').value.trim(),
-                    laurels: laurels
-                };
-                scripts.push(newScript);
-                localStorage.setItem('plmrn_scripts', JSON.stringify(scripts));
-                renderScripts();
-            }
-
-            closeAddModal();
-        }
-
-        function deleteShort(id, event) {
-            if (event) event.stopPropagation();
-            if (!confirm("¿Seguro que quieres eliminar este cortometraje?")) return;
-            shorts = shorts.filter(s => s.id !== id);
-            localStorage.setItem('plmrn_shorts', JSON.stringify(shorts));
-            renderShorts();
-            goHome();
-        }
-
-        function deleteScript(id, event) {
-            if (event) event.stopPropagation();
-            if (!confirm("¿Seguro que quieres eliminar este guion?")) return;
-            scripts = scripts.filter(s => s.id !== id);
-            localStorage.setItem('plmrn_scripts', JSON.stringify(scripts));
-            renderScripts();
         }
     </script>
 </body>
