@@ -11,7 +11,7 @@
 const SHORTS = [
     {
         slug: "el-exito-te-mata",
-        title: "EL ÉXITO TE MATA",
+        title: "EL EXITO TE MATA",
         year: 2026,
         genre: "Thriller psicológico / Drama satírico.",
         thumbnail: "img/exitomata.png",
