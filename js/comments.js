@@ -22,7 +22,7 @@ function formatRelative(date) {
 async function fetchComments(slug, offset) {
     const { data, error, count } = await sb
         .from('film_comments')
-        .select('id, body, created_at, user_id, profiles(username)', { count: 'exact' })
+        .select('id, body, score, created_at, user_id, profiles(username)', { count: 'exact' })
         .eq('film_slug', slug)
         .order('created_at', { ascending: false })
         .range(offset, offset + COMMENTS_PAGE_SIZE - 1);
@@ -34,7 +34,7 @@ async function postComment(slug, body) {
     const { data, error } = await sb
         .from('film_comments')
         .insert({ film_slug: slug, body })
-        .select('id, body, created_at, user_id, profiles(username)')
+        .select('id, body, score, created_at, user_id, profiles(username)')
         .single();
     if (error) throw error;
     return data;
@@ -57,6 +57,7 @@ function renderComment(comment) {
         <div class="comment__main">
             <div class="comment__head">
                 <strong class="comment__author">${escapeHTML(name)}</strong>
+                ${comment.score ? `<span class="comment__score" title="Valoración de ${escapeHTML(name)}">${renderStarMeter(comment.score, 'star-meter--sm')}</span>` : ''}
                 <time class="comment__date" datetime="${date.toISOString()}" title="${fullDate.format(date)}">${formatRelative(date)}</time>
                 ${isMine ? `<button type="button" class="comment__delete link-button" data-comment-delete="${comment.id}">Eliminar</button>` : ''}
             </div>
@@ -70,7 +71,7 @@ function renderCommentsSection() {
 
     return `<section class="panel comments" id="comentarios" aria-labelledby="comments-title">
         <div class="panel__head">
-            <h2 class="panel__title" id="comments-title"><span class="accent" aria-hidden="true">💬</span> Comentarios</h2>
+            <h2 class="panel__title" id="comments-title">Comentarios</h2>
             <span class="pill" data-comments-count>…</span>
         </div>
 

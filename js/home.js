@@ -6,8 +6,6 @@ function renderShortCard(short) {
         <a class="card" href="${shortUrl(short)}">
             <div class="media media--video" data-title="${escapeHTML(short.title)}">
                 <img src="${escapeHTML(short.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)">
-                <span class="tag tag--red">Cortometraje</span>
-                ${short.movie ? '<span class="play" aria-hidden="true">▶</span>' : ''}
             </div>
             <div class="card__body">
                 <h3 class="card__title">${escapeHTML(short.title)}</h3>
@@ -25,9 +23,9 @@ function renderScriptCard(script) {
         <article class="card card--static">
             <div class="media media--script" data-title="${escapeHTML(script.title)}">
                 <img src="${escapeHTML(script.poster)}" alt="Portada de ${escapeHTML(script.title)}" loading="lazy" onerror="handleImageError(this)">
-                <span class="tag tag--amber">Guion literario</span>
             </div>
             <div class="card__body">
+                <p class="card__meta">Guion literario</p>
                 <h3 class="card__title">${escapeHTML(script.title)}</h3>
                 <p class="card__text">${escapeHTML(script.synopsis || 'Sinopsis próximamente.')}</p>
                 ${renderLaurels(script.laurels, 'laurels laurels--compact')}

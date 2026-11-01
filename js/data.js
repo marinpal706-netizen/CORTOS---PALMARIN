@@ -1,5 +1,5 @@
 // ==========================================
-// 🎬 TUS CORTOMETRAJES
+// TUS CORTOMETRAJES
 // ==========================================
 // Cada corto tiene su propia página: corto.html?id=<slug>
 // - slug:      identificador único para la URL (minúsculas, sin espacios)
@@ -7,7 +7,7 @@
 // - poster:    póster VERTICAL para la ficha (si no hay, se usa el thumbnail)
 // - trailer / movie: enlaces de YouTube (déjalos vacíos "" si no hay)
 //
-// 👉 PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
+// PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
 const SHORTS = [
     {
         slug: "obsession-2",
@@ -66,22 +66,22 @@ const SHORTS = [
         year: null,
         genre: "",
         thumbnail: "img/TENGO.png",
-        poster: "", // 👉 Añade aquí su póster vertical cuando lo tengas (ej: "img/TENGOV.png")
+        poster: "", // Añade aquí su póster vertical cuando lo tengas (ej: "img/TENGOV.png")
         trailer: "https://youtu.be/Et5hKaKB6Fo",
         movie: "https://youtu.be/Pe1yrnFOLB4",
-        synopsis: "", // 👉 Escribe aquí la sinopsis de este corto
+        synopsis: "", // Escribe aquí la sinopsis de este corto
         laurels: []
     }
 ];
 
 // ==========================================
-// 📝 TUS GUIONES
+// TUS GUIONES
 // ==========================================
-// 👉 PARA AÑADIR OTRO GUION, copia un bloque desde '{' hasta '},'.
+// PARA AÑADIR OTRO GUION, copia un bloque desde '{' hasta '},'.
 const SCRIPTS = [
     {
         title: "El Último fotograma",
-        poster: "img/portadaguion.jpg", // 👉 Sube esta imagen a la carpeta img/
+        poster: "img/portadaguion.jpg", // Sube esta imagen a la carpeta img/
         synopsis: "Guion cinematográfico de suspense sobre un proyeccionista.",
         laurels: [
             { type: "Seleccionado", name: "Concurso de Guion Corto 2026" }

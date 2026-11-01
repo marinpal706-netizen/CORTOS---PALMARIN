@@ -48,7 +48,7 @@ Después dile a esa persona su nueva contraseña.
 Ya está hecho en [`js/config.js`](../js/config.js) con la **Project URL** y la
 **Publishable key**.
 
-> ⚠️ **Nunca** pongas la clave **secret** / **service_role** en la web: todo el
+> **Nunca** pongas la clave **secret** / **service_role** en la web: todo el
 > código de GitHub Pages es público.
 
 ## 4. Moderar comentarios
@@ -68,7 +68,7 @@ Ya está hecho en [`js/config.js`](../js/config.js) con la **Project URL** y la
 | `film_ratings` | Suma de puntuaciones y número de votos por corto (se actualiza sola). |
 | `film_rating_summary` | Vista pública con la media ya calculada. |
 | `submit_rating(p_film, p_score)` | Endpoint de voto. Exige sesión; crea o cambia el voto y devuelve la nueva media. |
-| `film_comments` | Comentarios. Lectura pública; escribir y borrar solo con sesión y solo los propios. Máx. 1000 caracteres y uno cada 15 segundos por usuario. |
+| `film_comments` | Comentarios. Lectura pública; escribir y borrar solo con sesión y solo los propios. Máx. 1000 caracteres y uno cada 15 segundos por usuario. Guarda la valoración que tenía el autor al comentar (columna `score`). |
 | `username_available(p_username)` | Comprueba si un nombre de usuario está libre al registrarse. |
 
 ## Problemas frecuentes

@@ -26,8 +26,9 @@ function renderLaurels(laurels, className = 'laurels') {
     return `
         <ul class="${className}">
             ${laurels.map(l => `
-                <li class="laurel"><span class="laurel__star" aria-hidden="true">★</span>
-                    <strong>${escapeHTML(l.type)}</strong> ${escapeHTML(l.name)}
+                <li class="laurel">
+                    <span class="laurel__type">${escapeHTML(l.type)}</span>
+                    <span class="laurel__name">${escapeHTML(l.name)}</span>
                 </li>`).join('')}
         </ul>`;
 }

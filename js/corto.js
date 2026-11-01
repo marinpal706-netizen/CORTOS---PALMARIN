@@ -55,7 +55,7 @@ function renderShort(root, short, index) {
                 ${meta ? `<p class="detail__meta">${escapeHTML(meta)}</p>` : ''}
 
                 <div class="detail__actions">
-                    ${short.movie ? '<a class="btn" href="#ver-corto">▶ Ver el corto</a>' : ''}
+                    ${short.movie ? '<a class="btn" href="#ver-corto">Ver el corto</a>' : ''}
                     ${short.trailer ? '<a class="btn btn--ghost" href="#trailer">Ver tráiler</a>' : ''}
                 </div>
 
@@ -64,13 +64,13 @@ function renderShort(root, short, index) {
 
                 ${renderRater(short)}
 
-                <h2 class="label label--amber"><span aria-hidden="true">★</span> Festivales y palmarés</h2>
+                <h2 class="label">Festivales y palmarés</h2>
                 ${renderLaurels(short.laurels) || '<p class="muted">Sin selecciones de festivales registradas.</p>'}
             </div>
         </section>
 
-        <div id="trailer">${renderVideo('<span class="accent">▶</span> Tráiler', `Tráiler de ${short.title}`, 'Avance oficial', short.trailer)}</div>
-        <div id="ver-corto">${renderVideo('<span class="accent">🎬</span> Cortometraje completo', short.title, 'Película completa', short.movie)}</div>
+        <div id="trailer">${renderVideo('Tráiler', `Tráiler de ${short.title}`, 'Avance oficial', short.trailer)}</div>
+        <div id="ver-corto">${renderVideo('Cortometraje completo', short.title, 'Película completa', short.movie)}</div>
 
         ${renderCommentsSection()}
 

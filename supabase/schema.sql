@@ -257,8 +257,12 @@ create table if not exists public.film_comments (
     film_slug  text        not null check (film_slug ~ '^[a-z0-9-]{1,80}$'),
     user_id    uuid        not null default auth.uid() references public.profiles (id) on delete cascade,
     body       text        not null check (char_length(btrim(body)) between 1 and 1000),
+    score      smallint    check (score between 1 and 5),  -- valoración del autor al comentar
     created_at timestamptz not null default now()
 );
+
+-- Para proyectos donde la tabla ya existía sin la columna de puntuación.
+alter table public.film_comments add column if not exists score smallint check (score between 1 and 5);
 
 create index if not exists film_comments_film_created_idx on public.film_comments (film_slug, created_at desc);
 create index if not exists film_comments_user_created_idx on public.film_comments (user_id, created_at desc);
@@ -282,7 +286,8 @@ grant select on public.film_comments to anon, authenticated;
 grant insert (film_slug, body) on public.film_comments to authenticated;
 grant delete on public.film_comments to authenticated;
 
--- Antispam: como mucho un comentario cada 15 segundos por usuario.
+-- Al publicar: antispam (como mucho un comentario cada 15 segundos por usuario)
+-- y se guarda la valoración que el autor tiene en ese momento para el corto.
 create or replace function public.limit_comment_rate()
 returns trigger
 language plpgsql
@@ -298,6 +303,10 @@ begin
         raise exception 'comment_rate_limit' using errcode = 'P0001';
     end if;
     new.body := btrim(new.body);
+    new.score := (
+        select v.score from public.film_user_votes v
+         where v.film_slug = new.film_slug and v.user_id = new.user_id
+    );
     return new;
 end;
 $$;
@@ -308,6 +317,12 @@ create trigger film_comments_rate_limit
     for each row execute function public.limit_comment_rate();
 
 revoke all on function public.limit_comment_rate() from public, anon, authenticated;
+
+-- Comentarios publicados antes de existir la columna: se rellenan con el voto actual.
+update public.film_comments c
+   set score = v.score
+  from public.film_user_votes v
+ where c.score is null and v.film_slug = c.film_slug and v.user_id = c.user_id;
 
 -- ---------- Limpieza opcional ----------
 -- La tabla de votos anónimos de la versión anterior ya no se usa.
