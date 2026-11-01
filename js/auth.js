@@ -1,12 +1,10 @@
-// Cuentas de usuario con Supabase Auth (email + contraseña):
+// Cuentas de usuario con Supabase Auth (nombre de usuario + contraseña):
 // cliente de Supabase, zona de cuenta en la cabecera y ventana de acceso/registro.
 // La sesión la guarda supabase-js en el navegador, así que sigue activa al recargar.
-
-// Enlaces de confirmación de email: Supabase vuelve con datos en la URL (#...).
-// Se leen antes de crear el cliente, que los borra de la dirección.
-const authRedirect = new URLSearchParams(location.hash.slice(1));
-const cameFromEmailLink = authRedirect.has('access_token') || new URLSearchParams(location.search).has('code');
-const emailLinkError = authRedirect.get('error_description');
+//
+// Supabase exige un email en cada cuenta, así que se usa uno interno que
+// nunca recibe correos: <usuario>@usuarios.plmrn.invalid
+// (en Supabase hay que tener desactivado "Confirm email", ver supabase/README.md).
 
 const SUPABASE_ENABLED = Boolean(SUPABASE_URL && SUPABASE_KEY && window.supabase?.createClient);
 
@@ -21,8 +19,11 @@ if (!SUPABASE_ENABLED) {
 }
 
 const MIN_PASSWORD_LENGTH = 6;
+const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,20}$/;
+const USERNAME_EMAIL_DOMAIN = 'usuarios.plmrn.invalid';
 
 let currentUser = null;
+let currentUsername = null;
 let authReady = false;
 const authListeners = [];
 
@@ -36,6 +37,23 @@ function getCurrentUser() {
     return currentUser;
 }
 
+function getCurrentUsername() {
+    return currentUsername;
+}
+
+// Email interno de una cuenta. Las cuentas antiguas creadas con email
+// pueden seguir entrando escribiendo su email en vez del usuario.
+function loginToEmail(login) {
+    return login.includes('@') ? login : `${login.toLowerCase()}@${USERNAME_EMAIL_DOMAIN}`;
+}
+
+async function loadUsername(user) {
+    if (!user) return null;
+    const { data, error } = await sb.from('profiles').select('username').eq('id', user.id).maybeSingle();
+    if (error) console.warn('[PLMRN] No se pudo cargar el perfil:', error);
+    return data?.username || user.user_metadata?.username || user.email?.split('@')[0] || 'Usuario';
+}
+
 // ---------- Mensajes de error comprensibles ----------
 
 function authErrorMessage(error) {
@@ -43,19 +61,13 @@ function authErrorMessage(error) {
     const text = (error?.message || '').toLowerCase();
 
     if (code === 'invalid_credentials' || text.includes('invalid login credentials')) {
-        return 'Email o contraseña incorrectos.';
-    }
-    if (code === 'email_not_confirmed' || text.includes('email not confirmed')) {
-        return 'Tienes que confirmar tu email antes de entrar. Revisa tu bandeja de entrada (y la carpeta de spam).';
+        return 'Usuario o contraseña incorrectos.';
     }
     if (code === 'user_already_exists' || code === 'email_exists' || text.includes('already registered')) {
-        return 'Ya existe una cuenta con este email. Inicia sesión.';
+        return 'Ese nombre de usuario ya está en uso. Elige otro.';
     }
     if (code === 'weak_password' || text.includes('password should')) {
         return `La contraseña es demasiado débil. Usa al menos ${MIN_PASSWORD_LENGTH} caracteres.`;
-    }
-    if (code === 'email_address_invalid' || text.includes('invalid format')) {
-        return 'Ese email no es válido.';
     }
     if (code.startsWith('over_') || error?.status === 429) {
         return 'Demasiados intentos. Espera un momento y vuelve a probar.';
@@ -85,11 +97,11 @@ function renderAccount() {
         return;
     }
 
-    const email = currentUser.email || 'Tu cuenta';
+    const name = currentUsername || 'Tu cuenta';
     box.innerHTML = `
-        <span class="account__user" title="${escapeHTML(email)}">
-            <span class="account__avatar" aria-hidden="true">${escapeHTML(email.charAt(0).toUpperCase())}</span>
-            <span class="account__email"><span class="sr-only">Sesión iniciada como </span>${escapeHTML(email)}</span>
+        <span class="account__user" title="${escapeHTML(name)}">
+            <span class="account__avatar" aria-hidden="true">${escapeHTML(name.charAt(0).toUpperCase())}</span>
+            <span class="account__email"><span class="sr-only">Sesión iniciada como </span>${escapeHTML(name)}</span>
         </span>
         <button type="button" class="btn btn--sm btn--ghost" data-auth-logout>Cerrar sesión</button>`;
 }
@@ -124,8 +136,10 @@ function createAuthDialog() {
 
         <form class="auth-form" novalidate>
             <label class="field">
-                <span class="field__label">Email</span>
-                <input type="email" name="email" autocomplete="email" inputmode="email" required>
+                <span class="field__label">Nombre de usuario</span>
+                <input type="text" name="username" autocomplete="username" autocapitalize="none"
+                    spellcheck="false" maxlength="60" required>
+                <span class="field__hint" data-signup-only hidden>De 3 a 20 caracteres: letras, números o _ (sin espacios). Será tu nombre público.</span>
             </label>
             <label class="field">
                 <span class="field__label">Contraseña</span>
@@ -133,7 +147,7 @@ function createAuthDialog() {
                     <input type="password" name="password" autocomplete="current-password" minlength="${MIN_PASSWORD_LENGTH}" required>
                     <button type="button" class="field__toggle" data-auth-toggle-password aria-pressed="false">Mostrar</button>
                 </span>
-                <span class="field__hint" data-signup-only hidden>Mínimo ${MIN_PASSWORD_LENGTH} caracteres.</span>
+                <span class="field__hint" data-signup-only hidden>Mínimo ${MIN_PASSWORD_LENGTH} caracteres. Guárdala bien: no se puede recuperar por email.</span>
             </label>
             <button type="submit" class="btn auth-form__submit">Iniciar sesión</button>
             <p class="auth-form__msg" role="status" aria-live="polite"></p>
@@ -186,19 +200,25 @@ function openAuthDialog(mode = 'login', reason = '') {
     reasonBox.hidden = !reason;
 
     if (!dialog.open) dialog.showModal();
-    dialog.querySelector('input[name="email"]').focus();
+    dialog.querySelector('input[name="username"]').focus();
 }
 
 async function handleAuthSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
-    const email = form.email.value.trim();
+    const login = form.username.value.trim();
     const password = form.password.value;
     const submit = form.querySelector('.auth-form__submit');
+    const isSignup = authMode === 'signup';
 
-    if (!form.email.checkValidity() || !email) {
-        setAuthMessage('Introduce un email válido.', 'error');
-        form.email.focus();
+    if (!login) {
+        setAuthMessage('Escribe tu nombre de usuario.', 'error');
+        form.username.focus();
+        return;
+    }
+    if (isSignup && !USERNAME_PATTERN.test(login)) {
+        setAuthMessage('El nombre de usuario debe tener de 3 a 20 caracteres: letras, números o _ (sin espacios ni tildes).', 'error');
+        form.username.focus();
         return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
@@ -209,37 +229,38 @@ async function handleAuthSubmit(event) {
 
     const originalLabel = submit.textContent;
     submit.disabled = true;
-    submit.textContent = authMode === 'signup' ? 'Creando cuenta…' : 'Entrando…';
+    submit.textContent = isSignup ? 'Creando cuenta…' : 'Entrando…';
     setAuthMessage('');
 
     try {
-        if (authMode === 'signup') {
-            const { data, error } = await sb.auth.signUp({
-                email,
-                password,
-                // Tras confirmar el email, Supabase devuelve al usuario a la portada.
-                options: { emailRedirectTo: new URL('index.html', location.href).href }
-            });
-            if (error) throw error;
-
-            // Con la confirmación de email activada, un email ya registrado
-            // no da error pero llega sin identidades.
-            if (data.user && data.user.identities?.length === 0) {
-                setAuthMode('login');
-                form.email.value = email;
-                setAuthMessage('Ya existe una cuenta con este email. Inicia sesión.', 'error');
+        if (isSignup) {
+            const { data: available, error: checkError } = await sb.rpc('username_available', { p_username: login });
+            if (checkError) throw checkError;
+            if (!available) {
+                setAuthMessage('Ese nombre de usuario ya está en uso. Elige otro.', 'error');
+                form.username.focus();
                 return;
             }
 
-            if (data.session) {
-                getAuthDialog().close();
-                showToast('¡Cuenta creada! Ya has iniciado sesión.', 'success');
-            } else {
-                form.reset();
-                setAuthMessage('¡Cuenta creada! Te hemos enviado un email de confirmación. Ábrelo y después inicia sesión.', 'success');
+            const { data, error } = await sb.auth.signUp({
+                email: loginToEmail(login),
+                password,
+                options: { data: { username: login } }
+            });
+            if (error) throw error;
+
+            if (!data.session) {
+                // Pasa si en Supabase sigue activado "Confirm email".
+                console.error('[PLMRN] Supabase no ha iniciado la sesión tras el registro: desactiva "Confirm email" en Authentication → Sign In / Providers → Email.');
+                setAuthMessage('No se ha podido completar el registro. Inténtalo más tarde.', 'error');
+                return;
             }
+
+            form.reset();
+            getAuthDialog().close();
+            showToast(`¡Cuenta creada! Bienvenido/a, ${login}.`, 'success');
         } else {
-            const { error } = await sb.auth.signInWithPassword({ email, password });
+            const { error } = await sb.auth.signInWithPassword({ email: loginToEmail(login), password });
             if (error) throw error;
             form.reset();
             getAuthDialog().close();
@@ -286,24 +307,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    if (emailLinkError) {
-        showToast('El enlace de confirmación no es válido o ha caducado. Inicia sesión o regístrate de nuevo.', 'error');
-        history.replaceState(null, '', location.pathname + location.search);
-    }
-
     sb.auth.onAuthStateChange((event, session) => {
         const previousId = currentUser?.id;
-        currentUser = session?.user ?? null;
+        const user = session?.user ?? null;
         const firstEvent = !authReady;
-        authReady = true;
+        currentUser = user;
 
-        // Se sale del callback antes de avisar al resto: así pueden llamar a Supabase sin bloqueos.
-        setTimeout(() => {
-            renderAccount();
-            if (firstEvent && cameFromEmailLink && currentUser) {
-                showToast('¡Email confirmado! Ya has iniciado sesión.', 'success');
-            }
-            if (firstEvent || previousId !== currentUser?.id) {
+        // Se sale del callback antes de llamar a Supabase: así no hay bloqueos.
+        setTimeout(async () => {
+            if (firstEvent || previousId !== user?.id) {
+                const username = await loadUsername(user);
+                if (currentUser?.id !== user?.id) return; // la sesión cambió mientras tanto
+                currentUsername = username;
+                authReady = true;
+                renderAccount();
                 authListeners.forEach(callback => callback(currentUser));
             }
         }, 0);

@@ -72,6 +72,8 @@ function renderShort(root, short, index) {
         <div id="trailer">${renderVideo('<span class="accent">▶</span> Tráiler', `Tráiler de ${short.title}`, 'Avance oficial', short.trailer)}</div>
         <div id="ver-corto">${renderVideo('<span class="accent">🎬</span> Cortometraje completo', short.title, 'Película completa', short.movie)}</div>
 
+        ${renderCommentsSection()}
+
         ${SHORTS.length > 1 ? `
         <nav class="pager" aria-label="Otros cortos">
             <a href="${shortUrl(prev)}"><small>← Anterior</small>${escapeHTML(prev.title)}</a>
@@ -102,5 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     else {
         renderShort(root, SHORTS[index], index);
         mountRater(root);
+        mountComments(root, SHORTS[index].slug);
     }
 });

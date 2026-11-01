@@ -548,6 +548,82 @@ a.card:hover .play { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 .link-button:hover { color: #fca5a5; }
 
+/* ---------- Comentarios ---------- */
+
+.comments { scroll-margin-top: 90px; }
+
+.comment-form {
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px;
+}
+.comment-form textarea {
+    width: 100%;
+    min-height: 84px;
+    resize: vertical;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid #374151;
+    background: rgba(17, 24, 39, 0.9);
+    color: #fff;
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.comment-form textarea:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+.comment-form__foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; }
+.comment-form__counter { font-size: 0.75rem; color: var(--dim); }
+.comment-form__msg { margin-top: 10px; font-size: 0.85rem; font-weight: 600; }
+.comment-form__msg:empty { display: none; }
+.comment-form__msg--success { color: #4ade80; }
+.comment-form__msg--error   { color: #f87171; }
+.comment-form__msg--info    { color: #93c5fd; }
+
+.comments__login { margin-bottom: 20px; font-size: 0.9rem; color: var(--muted); }
+
+.comments__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+
+.comment {
+    display: flex;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    animation: fadeUp 0.45s var(--ease) both;
+}
+.comment:first-child { border-top: 0; padding-top: 4px; }
+
+.comment__avatar {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #fff;
+    background: linear-gradient(135deg, #7f1d1d, #b45309);
+}
+.comment__main { min-width: 0; flex: 1; }
+.comment__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.comment__author { font-size: 0.9rem; }
+.comment__date { font-size: 0.75rem; color: var(--dim); }
+.comment__delete { margin-left: auto; font-size: 0.75rem; font-weight: 600; color: var(--dim); }
+.comment__delete:hover { color: #f87171; }
+.comment__body {
+    margin-top: 4px;
+    color: #d1d5db;
+    font-size: 0.925rem;
+    white-space: pre-line;
+    overflow-wrap: anywhere;
+}
+
+.comments__empty { margin: 8px 0 0; }
+.comments__more { margin-top: 16px; }
+
 /* ---------- Cuenta de usuario (cabecera) ---------- */
 
 .account { display: flex; align-items: center; gap: 10px; min-height: 36px; animation: fadeIn 0.4s ease both; }

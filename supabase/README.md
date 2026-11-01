@@ -1,88 +1,80 @@
-# Configurar Supabase (cuentas + valoraciones)
+# Configurar Supabase (cuentas, valoraciones y comentarios)
 
-La web está en GitHub Pages (solo archivos estáticos), así que las cuentas de
-usuario y los votos se guardan en Supabase. Sigue estos pasos una sola vez.
+La web está en GitHub Pages (solo archivos estáticos), así que las cuentas,
+los votos y los comentarios se guardan en Supabase.
 
-## 1. Crear el proyecto
+Proyecto: `https://cohizgnbpmapwccbpesv.supabase.co`
+Web: `https://marinpal706-netizen.github.io/CORTOS---PALMARIN/`
 
-1. Entra en <https://supabase.com>, crea una cuenta gratuita y pulsa **New project**.
-2. Elige un nombre (por ejemplo `plmrn`), una contraseña para la base de datos
-   (guárdala, no la necesita la web) y la región más cercana (por ejemplo *West EU*).
+## 1. Ejecutar el SQL
 
-## 2. Crear las tablas y el endpoint de voto
-
-1. En el menú de la izquierda abre **SQL Editor** → **New query**.
+1. En Supabase abre **SQL Editor** → **New query** (o *Create a new snippet*).
 2. Copia **todo** el contenido de [`schema.sql`](schema.sql), pégalo y pulsa **Run**.
-3. Debe aparecer *Success. No rows returned*.
+3. Debe aparecer *Success. No rows returned*. Si avisa de "destructive operations", confirma.
 
-Puedes volver a ejecutarlo más adelante (por ejemplo, si actualizamos el archivo)
-sin perder votos ni cuentas.
+Puedes volver a ejecutarlo siempre que se actualice el archivo: no se pierden
+cuentas, votos ni comentarios.
 
-## 3. Configurar el acceso con email y contraseña
+## 2. Cuentas con nombre de usuario (sin email)
 
-En **Authentication**:
+Las cuentas se crean con **nombre de usuario + contraseña**. Supabase necesita
+un email por dentro, así que la web usa uno interno que nunca recibe correos
+(`usuario@usuarios.plmrn.invalid`). Por eso hay que desactivar la confirmación:
 
-1. **Sign In / Providers → Email**: comprueba que está activado.
-   - **Confirm email** activado (recomendado): al registrarse, el usuario recibe
-     un email y debe pulsar el enlace antes de poder entrar.
-   - Si lo desactivas, la cuenta queda lista al momento (útil para pruebas).
-   - **Minimum password length**: la web pide 6 como mínimo; si subes este valor,
-     cambia también `MIN_PASSWORD_LENGTH` en `js/auth.js`.
-2. **URL Configuration**:
-   - **Site URL**: la dirección de tu web en GitHub Pages, por ejemplo
-     `https://TU-USUARIO.github.io/TU-REPOSITORIO/`
-   - **Redirect URLs**: añade `https://TU-USUARIO.github.io/TU-REPOSITORIO/**`
-     (con los dos asteriscos). Es a donde vuelve el usuario tras confirmar su email.
-     Si pruebas la web en tu ordenador, añade también la dirección local que uses.
-3. **Emails** (opcional): en *Templates* puedes traducir al español el email de
-   confirmación. El servicio de email incluido en Supabase solo envía unos pocos
-   correos por hora: si esperas muchos registros, configura un SMTP propio en
-   *SMTP Settings*.
+1. **Authentication → Sign In / Providers → Email**
+2. **Confirm email**: **desactivado**. Pulsa **Save**.
 
-## 4. Conectar la web
+Así no se envía ningún correo y no existe el límite de emails por hora.
 
-1. Abre **Project Settings → API Keys** (o **Data API**).
-2. Copia la **Project URL** (algo como `https://abcdefghijkl.supabase.co`).
-3. Copia la clave pública: **Publishable key** (`sb_publishable_...`) o, en
-   proyectos antiguos, la **anon public** (`eyJ...`).
-4. Pégalas en [`js/config.js`](../js/config.js):
+Las cuentas creadas antes con email siguen funcionando: escriben su email en
+el campo "Nombre de usuario". Se les ha asignado un nombre automático
+(parte de su email + 4 caracteres) que puedes cambiar en **Table Editor → profiles**.
 
-   ```js
-   const SUPABASE_URL = 'https://abcdefghijkl.supabase.co';
-   const SUPABASE_KEY = 'sb_publishable_...';
-   ```
+### Si alguien olvida su contraseña
+
+No se puede recuperar por email. Puedes ponerle una nueva desde
+**SQL Editor** (cambia el nombre y la contraseña):
+
+```sql
+update auth.users
+   set encrypted_password = extensions.crypt('NuevaClave123', extensions.gen_salt('bf'))
+ where id = (select id from public.profiles where lower(username) = lower('nombre_usuario'));
+```
+
+Después dile a esa persona su nueva contraseña.
+
+## 3. Conectar la web
+
+Ya está hecho en [`js/config.js`](../js/config.js) con la **Project URL** y la
+**Publishable key**.
 
 > ⚠️ **Nunca** pongas la clave **secret** / **service_role** en la web: todo el
-> código de GitHub Pages es público. La clave pública es segura porque las
-> reglas de `schema.sql` (Row Level Security) limitan lo que se puede hacer con ella.
+> código de GitHub Pages es público.
 
-## 5. Publicar y probar
+## 4. Moderar comentarios
 
-1. Sube los cambios a GitHub y espera a que GitHub Pages se actualice (1–2 min).
-2. Abre la web → **Entrar** → **Crear cuenta** con tu email.
-3. Confirma el email, inicia sesión y valora un corto.
-4. En Supabase, **Table Editor → film_user_votes** debería mostrar tu voto y
-   **film_ratings** el total actualizado.
+- Cada usuario puede borrar sus propios comentarios desde la web.
+- Tú puedes borrar cualquiera en **Table Editor → film_comments**: marca la fila
+  y pulsa **Delete**.
+- Para expulsar a alguien: **Authentication → Users** → ⋮ → **Delete user**
+  (se borran también sus votos y comentarios).
 
 ## Cómo funciona
 
 | Pieza | Qué hace |
 | --- | --- |
+| `profiles` | Nombre de usuario público de cada cuenta (se crea solo al registrarse). |
 | `film_user_votes` | Un voto por (corto, usuario). Cada usuario solo puede leer el suyo. |
-| `film_ratings` | Suma de puntuaciones y número de votos por corto. Se actualiza sola con un trigger. |
-| `film_rating_summary` | Vista pública con la media ya calculada (2 decimales). |
-| `submit_rating(p_film, p_score)` | Endpoint (`POST /rest/v1/rpc/submit_rating`). Exige sesión, crea o cambia el voto y devuelve `{ status, your_score, average, votes }`. |
-
-Si un usuario borra su cuenta (desde **Authentication → Users**), sus votos se
-eliminan y los totales se recalculan automáticamente.
+| `film_ratings` | Suma de puntuaciones y número de votos por corto (se actualiza sola). |
+| `film_rating_summary` | Vista pública con la media ya calculada. |
+| `submit_rating(p_film, p_score)` | Endpoint de voto. Exige sesión; crea o cambia el voto y devuelve la nueva media. |
+| `film_comments` | Comentarios. Lectura pública; escribir y borrar solo con sesión y solo los propios. Máx. 1000 caracteres y uno cada 15 segundos por usuario. |
+| `username_available(p_username)` | Comprueba si un nombre de usuario está libre al registrarse. |
 
 ## Problemas frecuentes
 
-- **"Email o contraseña incorrectos"** con datos correctos → la cuenta aún no
-  está confirmada, o se registró con otro email.
-- **El enlace del email lleva a `localhost` o da error** → revisa *Site URL* y
-  *Redirect URLs* (paso 3).
-- **No llega el email** → mira en spam; el servicio gratuito de Supabase tiene
-  un límite de envíos por hora.
-- **"Las valoraciones estarán disponibles muy pronto"** → `js/config.js` está
-  vacío o la clave no es correcta.
+- **"No se ha podido completar el registro"** → *Confirm email* sigue activado (paso 2).
+- **"Ese nombre de usuario ya está en uso"** → otra cuenta lo tiene (sin importar mayúsculas).
+- **"Usuario o contraseña incorrectos"** → revisa la contraseña; si la olvidó, mira el paso 2.
+- **No salen los comentarios ni el botón "Entrar"** → el SQL no se ha ejecutado
+  entero, o el navegador usa archivos antiguos (prueba en una ventana de incógnito).

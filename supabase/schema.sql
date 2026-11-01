@@ -170,6 +170,145 @@ grant execute on function public.submit_rating(text, integer) to authenticated;
 
 revoke all on function public.update_film_rating_totals() from public, anon, authenticated;
 
+-- ==========================================
+-- Perfiles: nombre de usuario público
+-- ==========================================
+-- Las cuentas se crean con usuario + contraseña. Supabase necesita un email
+-- por dentro, así que la web usa uno interno (usuario@usuarios.plmrn.invalid)
+-- que nunca recibe correos. El nombre visible se guarda aquí.
+
+create table if not exists public.profiles (
+    id         uuid        primary key references auth.users (id) on delete cascade,
+    username   text        not null check (username ~ '^[A-Za-z0-9_]{3,20}$'),
+    created_at timestamptz not null default now()
+);
+
+create unique index if not exists profiles_username_lower_key on public.profiles (lower(username));
+
+alter table public.profiles enable row level security;
+
+drop policy if exists "Nombres de usuario visibles para todos" on public.profiles;
+create policy "Nombres de usuario visibles para todos" on public.profiles
+    for select using (true);
+
+revoke all on public.profiles from anon, authenticated;
+grant select on public.profiles to anon, authenticated;
+
+-- Crea el perfil automáticamente al registrarse (el nombre llega en los metadatos).
+-- Cuentas sin nombre (p. ej. creadas antes con email) reciben uno automático.
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+    v_username text := new.raw_user_meta_data ->> 'username';
+begin
+    if v_username is null or v_username !~ '^[A-Za-z0-9_]{3,20}$' then
+        v_username := left(regexp_replace(coalesce(split_part(new.email, '@', 1), 'usuario'), '[^A-Za-z0-9_]', '_', 'g'), 15)
+                      || '_' || left(replace(new.id::text, '-', ''), 4);
+    end if;
+
+    insert into public.profiles (id, username) values (new.id, v_username);
+    return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+    after insert on auth.users
+    for each row execute function public.handle_new_user();
+
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+
+-- Perfil para las cuentas que ya existían antes de este cambio.
+insert into public.profiles (id, username)
+select u.id,
+       left(regexp_replace(coalesce(split_part(u.email, '@', 1), 'usuario'), '[^A-Za-z0-9_]', '_', 'g'), 15)
+       || '_' || left(replace(u.id::text, '-', ''), 4)
+  from auth.users u
+ where not exists (select 1 from public.profiles p where p.id = u.id)
+on conflict do nothing;
+
+-- ¿Está libre este nombre de usuario? (para avisar antes de registrarse)
+create or replace function public.username_available(p_username text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+    select not exists (select 1 from public.profiles where lower(username) = lower(p_username));
+$$;
+
+revoke all on function public.username_available(text) from public;
+grant execute on function public.username_available(text) to anon, authenticated;
+
+-- ==========================================
+-- Comentarios
+-- ==========================================
+-- Cualquiera puede leerlos; para escribir hay que iniciar sesión.
+-- Cada usuario puede borrar los suyos. Tú puedes borrar cualquiera desde
+-- Table Editor → film_comments.
+
+create table if not exists public.film_comments (
+    id         bigint      generated always as identity primary key,
+    film_slug  text        not null check (film_slug ~ '^[a-z0-9-]{1,80}$'),
+    user_id    uuid        not null default auth.uid() references public.profiles (id) on delete cascade,
+    body       text        not null check (char_length(btrim(body)) between 1 and 1000),
+    created_at timestamptz not null default now()
+);
+
+create index if not exists film_comments_film_created_idx on public.film_comments (film_slug, created_at desc);
+create index if not exists film_comments_user_created_idx on public.film_comments (user_id, created_at desc);
+
+alter table public.film_comments enable row level security;
+
+drop policy if exists "Comentarios visibles para todos" on public.film_comments;
+create policy "Comentarios visibles para todos" on public.film_comments
+    for select using (true);
+
+drop policy if exists "Usuarios publican con su cuenta" on public.film_comments;
+create policy "Usuarios publican con su cuenta" on public.film_comments
+    for insert to authenticated with check ((select auth.uid()) = user_id);
+
+drop policy if exists "Usuarios borran sus comentarios" on public.film_comments;
+create policy "Usuarios borran sus comentarios" on public.film_comments
+    for delete to authenticated using ((select auth.uid()) = user_id);
+
+revoke all on public.film_comments from anon, authenticated;
+grant select on public.film_comments to anon, authenticated;
+grant insert (film_slug, body) on public.film_comments to authenticated;
+grant delete on public.film_comments to authenticated;
+
+-- Antispam: como mucho un comentario cada 15 segundos por usuario.
+create or replace function public.limit_comment_rate()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+    if exists (
+        select 1 from public.film_comments
+         where user_id = new.user_id
+           and created_at > now() - interval '15 seconds'
+    ) then
+        raise exception 'comment_rate_limit' using errcode = 'P0001';
+    end if;
+    new.body := btrim(new.body);
+    return new;
+end;
+$$;
+
+drop trigger if exists film_comments_rate_limit on public.film_comments;
+create trigger film_comments_rate_limit
+    before insert on public.film_comments
+    for each row execute function public.limit_comment_rate();
+
+revoke all on function public.limit_comment_rate() from public, anon, authenticated;
+
 -- ---------- Limpieza opcional ----------
 -- La tabla de votos anónimos de la versión anterior ya no se usa.
 -- Si la creaste y quieres borrarla, quita los dos guiones de la línea siguiente:
