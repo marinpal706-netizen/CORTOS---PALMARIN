@@ -10,6 +10,33 @@
 // PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
 const SHORTS = [
     {
+        slug: "el-éxito-te-mata",
+        title: "EL ÉXITO TE MATA",
+        year: 2026,
+        genre: "Thriller psicológico / Drama satírico.",
+        thumbnail: "img/exitomata.png",
+        poster: "img/elexitoposter.png",
+        trailer: "",
+        movie: "https://youtu.be/w6OSmCYD-lc",
+        synopsis: "La ambición desmedida y la obsesión por la fama ciegan por completo a un aspirante a estrella, que fantasea constantemente con ser el centro de atención a cualquier precio. Sin embargo, ignora que la línea entre el éxito y la destrucción personal es muy fina, y la realidad acabará por golpearle de la forma más inesperada.",
+        laurels: []
+    },
+
+
+    {
+        slug: "ese-nombre-me-suena",
+        title: "ESE NOMBRE ME SUENA",
+        year: 2026,
+        genre: "Thriller psicológico / Suspense.",
+        thumbnail: "img/bate.png",
+        poster: "img/bateposter.png",
+        trailer: "https://youtu.be/0FjE0RmSkrs",
+        movie: "https://youtu.be/Yc8U1BxB_e4",
+        synopsis: "Dos amigos hablan por teléfono y uno de ellos, completamente borracho, suelta una confidencia sobre su pareja. Lo que empieza como una charla entre colegas deriva rápidamente en una espiral de tensión, paranoia y un final fatal.",
+        laurels: []
+    },
+    
+    {
         slug: "obsession-2",
         title: "Obsession 2",
         year: 2026,
