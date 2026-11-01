@@ -10,7 +10,7 @@
 // PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
 const SHORTS = [
     {
-        slug: "el-éxito-te-mata",
+        slug: "el-exito-te-mata",
         title: "EL ÉXITO TE MATA",
         year: 2026,
         genre: "Thriller psicológico / Drama satírico.",
