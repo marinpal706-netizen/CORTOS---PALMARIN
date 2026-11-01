@@ -1,5 +1,35 @@
 // Ficha individual de un cortometraje: corto.html?id=<slug>
 
+const CAROUSEL_ARROW_LEFT = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>';
+const CAROUSEL_ARROW_RIGHT = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+
+// Flechas del carrusel: desplazan la fila de un lado a otro.
+function mountCarousel(root) {
+    const carousel = root.querySelector('.carousel');
+    if (!carousel) return;
+    const prev = root.querySelector('[data-carousel="prev"]');
+    const next = root.querySelector('[data-carousel="next"]');
+
+    function update() {
+        prev.disabled = carousel.scrollLeft <= 2;
+        next.disabled = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 2;
+    }
+    function scrollByPage(direction) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        carousel.scrollBy({ left: direction * carousel.clientWidth * 0.85, behavior: reduce ? 'auto' : 'smooth' });
+    }
+
+    prev.addEventListener('click', () => scrollByPage(-1));
+    next.addEventListener('click', () => scrollByPage(1));
+    carousel.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    carousel.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight') { event.preventDefault(); scrollByPage(1); }
+        if (event.key === 'ArrowLeft') { event.preventDefault(); scrollByPage(-1); }
+    });
+    update();
+}
+
 function renderVideo(title, label, badge, url) {
     const embed = toYouTubeEmbed(url);
     if (!embed) return '';
@@ -80,9 +110,15 @@ function renderShort(root, short, index) {
             <a href="${shortUrl(next)}" class="pager__next"><small>Siguiente →</small>${escapeHTML(next.title)}</a>
         </nav>
 
-        <section>
-            <h2 class="section-title">Más cortometrajes</h2>
-            <div class="mini-grid">
+        <section class="more" aria-labelledby="more-title">
+            <div class="more__head">
+                <h2 class="section-title" id="more-title">Más cortometrajes</h2>
+                <div class="carousel-nav">
+                    <button type="button" class="carousel-btn" data-carousel="prev" aria-label="Anterior" disabled>${CAROUSEL_ARROW_LEFT}</button>
+                    <button type="button" class="carousel-btn" data-carousel="next" aria-label="Siguiente">${CAROUSEL_ARROW_RIGHT}</button>
+                </div>
+            </div>
+            <div class="carousel" tabindex="0" aria-label="Más cortometrajes">
                 ${others.map(s => `
                     <a class="mini" href="${shortUrl(s)}">
                         <div class="media media--video" data-title="${escapeHTML(s.title)}">
@@ -105,5 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderShort(root, SHORTS[index], index);
         mountRater(root);
         mountComments(root, SHORTS[index].slug);
+        mountCarousel(root);
     }
 });

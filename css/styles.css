@@ -426,7 +426,86 @@ a.card:hover .media img { filter: brightness(1); }
 .pager__next { text-align: right; padding-left: 24px !important; border-left: 1px solid var(--line); }
 
 .short-page > section > .section-title { font-size: 1.9rem; }
-.mini-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px 20px; margin-top: 24px; }
+/* Carrusel horizontal de "Más cortometrajes" */
+.more { margin-top: 72px; }
+.more__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.carousel-nav { display: flex; gap: 8px; }
+.carousel-btn,
+.to-top {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, transform 0.3s var(--ease);
+}
+.carousel-btn:hover:not(:disabled),
+.to-top:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+.carousel-btn:disabled { opacity: 0.3; cursor: default; }
+
+.carousel {
+    display: flex;
+    gap: 20px;
+    margin-top: 24px;
+    padding-bottom: 8px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+}
+.carousel::-webkit-scrollbar { display: none; }
+.carousel .mini { flex: 0 0 min(260px, 70%); scroll-snap-align: start; }
+
+/* Filtros del inicio */
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 32px; }
+.filters__search {
+    flex: 0 1 260px;
+    min-width: 0;
+    padding: 9px 2px;
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    border-radius: 0;
+    transition: border-color 0.2s ease;
+}
+.filters__search::placeholder { color: var(--dim); }
+.filters__search:focus { outline: none; border-color: var(--text); }
+.filters__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.chip:hover { color: var(--text); border-color: var(--text); }
+.chip.is-active { color: var(--bg); background: var(--text); border-color: var(--text); }
+.filters__empty { padding: 24px 0; }
+
+/* Flecha flotante "volver arriba" */
+.to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 40;
+    background: var(--surface);
+    opacity: 0;
+    transform: translateY(8px);
+}
+.to-top.is-visible { opacity: 1; transform: none; }
+
 .mini { display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; font-weight: 500; }
 .mini span { transition: color 0.2s ease; }
 .mini:hover span { color: var(--muted); }
@@ -843,7 +922,9 @@ body.is-leaving { opacity: 0; }
     .pager { grid-template-columns: 1fr; }
     .pager__next { text-align: left; padding-left: 0 !important; border-left: 0; border-top: 1px solid var(--line); }
     .pager a { font-size: 1.25rem; }
-    .mini-grid { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
+    .more { margin-top: 56px; }
+    .filters__search { flex-basis: 100%; }
+    .to-top { right: 14px; bottom: 14px; }
     .auth-dialog { padding: 32px 22px 24px; }
 }
 

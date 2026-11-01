@@ -65,4 +65,41 @@ function showToast(message, type = 'info') {
 document.addEventListener('DOMContentLoaded', () => {
     const year = document.getElementById('year');
     if (year) year.textContent = new Date().getFullYear();
+    setupBackToTop();
 });
+
+// Flecha flotante que aparece al bajar y devuelve al inicio de la página.
+function setupBackToTop() {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'to-top';
+    button.setAttribute('aria-label', 'Volver arriba');
+    button.hidden = true;
+    button.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+    document.body.appendChild(button);
+
+    let ticking = false;
+    function update() {
+        ticking = false;
+        const show = window.scrollY > 600;
+        if (show && button.hidden) {
+            button.hidden = false;
+            requestAnimationFrame(() => button.classList.add('is-visible'));
+        } else if (!show && !button.hidden) {
+            button.classList.remove('is-visible');
+            button.hidden = true;
+        }
+    }
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(update);
+        }
+    }, { passive: true });
+
+    button.addEventListener('click', () => {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+    update();
+}

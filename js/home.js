@@ -69,10 +69,50 @@ function setupScrollSpy() {
     update();
 }
 
+// Filtro por título y por género. Los géneros salen de data.js automáticamente.
+function setupFilters() {
+    const search = document.getElementById('shorts-search');
+    const chipsBox = document.getElementById('shorts-genres');
+    const grid = document.getElementById('shorts-grid');
+    const empty = document.getElementById('shorts-empty');
+    const count = document.getElementById('shorts-count');
+    const normalize = text => (text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+    const genres = [...new Set(SHORTS.map(s => s.genre).filter(Boolean))];
+    let activeGenre = '';
+
+    function renderChips() {
+        const all = ['', ...genres];
+        chipsBox.innerHTML = all.map(genre => `
+            <button type="button" class="chip${genre === activeGenre ? ' is-active' : ''}" data-genre="${escapeHTML(genre)}" aria-pressed="${genre === activeGenre}">${genre ? escapeHTML(genre) : 'Todos'}</button>`).join('');
+    }
+
+    function apply() {
+        const query = normalize(search.value.trim());
+        const visible = SHORTS.filter(s =>
+            (!activeGenre || s.genre === activeGenre) && (!query || normalize(s.title).includes(query)));
+        grid.innerHTML = visible.map(renderShortCard).join('');
+        count.textContent = visible.length;
+        empty.hidden = visible.length > 0;
+        fillCardRatings();
+    }
+
+    if (genres.length < 2) chipsBox.hidden = true;
+    else renderChips();
+
+    chipsBox.addEventListener('click', (event) => {
+        const chip = event.target.closest('[data-genre]');
+        if (!chip) return;
+        activeGenre = chip.dataset.genre;
+        renderChips();
+        apply();
+    });
+    search.addEventListener('input', apply);
+    apply();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('shorts-grid').innerHTML = SHORTS.map(renderShortCard).join('');
-    document.getElementById('shorts-count').textContent = SHORTS.length;
-    fillCardRatings();
+    setupFilters();
 
     const scriptsGrid = document.getElementById('scripts-grid');
     if (SCRIPTS.length) {
