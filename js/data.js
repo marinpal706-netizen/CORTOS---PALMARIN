@@ -10,10 +10,22 @@
 // PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
 const SHORTS = [
     {
+        slug: "subidon",
+        title: "SUBIDON",
+        year: 2026,
+        genre: "Suspense.",
+        thumbnail: "img/subidon.png",
+        poster: "img/subidonposter.png",
+        trailer: "",
+        movie: "https://youtu.be/ulkTQpwLgxQ",
+        synopsis: "Un joven se aísla con la música de sus cascos, buscando escapar de su propia mente en una espiral de ritmo y paranoia.",
+        laurels: []
+    },
+    {
         slug: "el-exito-te-mata",
         title: "EL EXITO TE MATA",
         year: 2026,
-        genre: "Thriller psicológico / Drama satírico.",
+        genre: "Thriller psicológico.",
         thumbnail: "img/exitomata.png",
         poster: "img/elexitoposter.png",
         trailer: "",
