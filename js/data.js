@@ -105,10 +105,10 @@ const SHORTS = [
         year: null,
         genre: "",
         thumbnail: "img/TENGO.png",
-        poster: "", // Añade aquí su póster vertical cuando lo tengas (ej: "img/TENGOV.png")
+        poster: "img/obs.png", // Añade aquí su póster vertical cuando lo tengas (ej: "img/TENGOV.png")
         trailer: "https://youtu.be/Et5hKaKB6Fo",
         movie: "https://youtu.be/Pe1yrnFOLB4",
-        synopsis: "", // Escribe aquí la sinopsis de este corto
+        synopsis: "Una tensa llamada nocturna entre una pareja por un supuesto control excesivo da un giro radicalmente aterrorizante cuando ella afirma estar esperándole en la sala de un cine que a medianoche debería estar cerrado, convirtiendo una discusión rutinaria en una pesadilla claustrofóbica.", // Escribe aquí la sinopsis de este corto
         laurels: []
     }
 ];
