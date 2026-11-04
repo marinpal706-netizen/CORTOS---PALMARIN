@@ -11,7 +11,7 @@
 const SHORTS = [
     {
         slug: "subidon",
-        title: "SUBIDON",
+        title: "SUBIDÓN",
         year: 2026,
         genre: "Suspense.",
         thumbnail: "img/subidon.png",
@@ -23,7 +23,7 @@ const SHORTS = [
     },
     {
         slug: "el-exito-te-mata",
-        title: "EL EXITO TE MATA",
+        title: "EL EXITÓ TE MATA",
         year: 2026,
         genre: "Thriller psicológico.",
         thumbnail: "img/exitomata.png",
