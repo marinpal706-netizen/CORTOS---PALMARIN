@@ -13,12 +13,12 @@ const SHORTS = [
         slug: "inesperado",
         title: "INESPERADO",
         year: 2026,
-        genre: "Suspense.",
-        thumbnail: "img/subidon.png",
-        poster: "img/subidonposter.png",
+        genre: "Thriller psicológico / Suspense",
+        thumbnail: "img/ines.png",
+        poster: "img/poster.png",
         trailer: "",
-        movie: "",
-        synopsis: "",
+        movie: "https://youtu.be/9qFP3xbwsK4",
+        synopsis: "Un joven aislado con sus auriculares en casa experimenta una creciente sensación de paranoia y claustrofobia, hasta que unos golpes secos y repentinos en la puerta rompen el silencio y desatan una pesadilla de la que es imposible escapar.",
         laurels: []
     },
     {
