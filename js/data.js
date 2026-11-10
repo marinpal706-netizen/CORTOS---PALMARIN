@@ -9,6 +9,18 @@
 //
 // PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
 const SHORTS = [
+        {
+        slug: "inesperado",
+        title: "INESPERADO",
+        year: 2026,
+        genre: "Suspense.",
+        thumbnail: "img/subidon.png",
+        poster: "img/subidonposter.png",
+        trailer: "",
+        movie: "",
+        synopsis: "",
+        laurels: []
+    },
     {
         slug: "subidon",
         title: "SUBIDÓN",
