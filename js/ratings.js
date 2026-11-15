@@ -114,7 +114,7 @@ function renderRater(short) {
     const stars = [1, 2, 3, 4, 5].map(n => `
         <input type="radio" class="sr-only" name="score" id="star-${n}" value="${n}">
         <label for="star-${n}" class="rater__star" data-value="${n}" title="${n} ${n === 1 ? 'estrella' : 'estrellas'}">
-            <span aria-hidden="true">★</span><span class="sr-only">${n} de 5 estrellas</span>
+            ${STAR_ICON}<span class="sr-only">${n} de 5 estrellas</span>
         </label>`).join('');
 
     return `<section class="rating" aria-labelledby="rating-title" data-slug="${escapeHTML(short.slug)}">

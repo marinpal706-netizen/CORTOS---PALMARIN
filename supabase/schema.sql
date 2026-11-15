@@ -461,6 +461,10 @@ create table if not exists public.shorts (
     updated_at timestamptz not null default now()
 );
 
+-- Fotograma de fondo opcional (sin letras) para la portada y la ficha.
+alter table public.shorts add column if not exists backdrop text not null default ''
+    check (char_length(backdrop) <= 500 and backdrop ~ '^(|img/[A-Za-z0-9._/-]+|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+)$');
+
 create index if not exists shorts_position_idx on public.shorts (position, created_at desc);
 
 alter table public.shorts enable row level security;
@@ -483,10 +487,10 @@ create policy "Administradores borran cortos" on public.shorts
 
 revoke all on public.shorts from anon, authenticated;
 grant select on public.shorts to anon, authenticated;
-grant insert (slug, title, year, genre, thumbnail, poster, trailer, movie, synopsis, laurels, position, published)
+grant insert (slug, title, year, genre, thumbnail, poster, backdrop, trailer, movie, synopsis, laurels, position, published)
     on public.shorts to authenticated;
 -- El slug no se puede cambiar: las valoraciones y comentarios van unidos a él.
-grant update (title, year, genre, thumbnail, poster, trailer, movie, synopsis, laurels, position, published)
+grant update (title, year, genre, thumbnail, poster, backdrop, trailer, movie, synopsis, laurels, position, published)
     on public.shorts to authenticated;
 grant delete on public.shorts to authenticated;
 

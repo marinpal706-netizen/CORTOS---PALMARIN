@@ -2,7 +2,9 @@
 // desde admin.html). Si Supabase no responde o no está configurado, se usa
 // la copia de seguridad de js/data.js, así que la web nunca se queda vacía.
 
-const SHORT_FIELDS = 'slug,title,year,genre,thumbnail,poster,trailer,movie,synopsis,laurels';
+// Se piden todas las columnas: así el campo opcional "backdrop" llega si existe en
+// la tabla, y si todavía no se ha creado la consulta sigue funcionando.
+const SHORT_FIELDS = '*';
 const SHORTS_TIMEOUT_MS = 6000;
 
 let shortsCatalog = null;
@@ -16,6 +18,7 @@ function normalizeShort(row) {
         genre: row.genre || '',
         thumbnail: row.thumbnail || '',
         poster: row.poster || '',
+        backdrop: row.backdrop || '',
         trailer: row.trailer || '',
         movie: row.movie || '',
         synopsis: row.synopsis || '',

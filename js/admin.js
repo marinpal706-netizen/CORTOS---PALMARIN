@@ -7,7 +7,10 @@ const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_SIDE = 2000;           // las imágenes más grandes se reducen antes de subirlas
 const SHRINK_ABOVE_BYTES = 1.5 * 1024 * 1024;
 const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/avif'];
-const ADMIN_FIELDS = 'slug, title, year, genre, thumbnail, poster, trailer, movie, synopsis, laurels, position, published';
+// Todas las columnas: incluye "backdrop" cuando ya se ha creado en Supabase.
+const ADMIN_FIELDS = '*';
+// ¿Existe ya la columna "backdrop"? (se añade al ejecutar supabase/schema.sql)
+const hasBackdropColumn = () => admin.shorts.some(s => 'backdrop' in s);
 const IMAGE_PATTERN = /^(|img\/[A-Za-z0-9._/-]{1,200}|https:\/\/[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$/;
 const SLUG_PATTERN = /^[a-z0-9-]{1,80}$/;
 
@@ -146,8 +149,8 @@ function renderShortList() {
                         </span>
                     </button>
                     <span class="admin-item__order">
-                        <button type="button" class="admin-icon" data-admin="up" data-slug="${escapeHTML(short.slug)}" aria-label="Subir ${escapeHTML(short.title)}" ${index === 0 ? 'disabled' : ''}>↑</button>
-                        <button type="button" class="admin-icon" data-admin="down" data-slug="${escapeHTML(short.slug)}" aria-label="Bajar ${escapeHTML(short.title)}" ${index === shorts.length - 1 ? 'disabled' : ''}>↓</button>
+                        <button type="button" class="admin-icon" data-admin="up" data-slug="${escapeHTML(short.slug)}" aria-label="Subir ${escapeHTML(short.title)}" ${index === 0 ? 'disabled' : ''}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+                        <button type="button" class="admin-icon" data-admin="down" data-slug="${escapeHTML(short.slug)}" aria-label="Bajar ${escapeHTML(short.title)}" ${index === shorts.length - 1 ? 'disabled' : ''}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
                     </span>
                 </li>`).join('')}
         </ol>` : '<p class="muted">Todavía no hay cortos. Pulsa "Nuevo corto" para añadir el primero.</p>'}
@@ -189,7 +192,7 @@ function renderLaurelRow(laurel = {}) {
                 <span class="sr-only">Nombre del festival</span>
                 <input type="text" name="laurel-name" value="${escapeHTML(laurel.name || '')}" placeholder="Nombre del festival" maxlength="120">
             </label>
-            <button type="button" class="admin-icon" data-admin="remove-laurel" aria-label="Quitar este festival">×</button>
+            <button type="button" class="admin-icon" data-admin="remove-laurel" aria-label="Quitar este festival"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>`;
 }
 
@@ -204,7 +207,7 @@ function renderEditor() {
 
     const isNew = admin.editing === '';
     const short = isNew
-        ? { slug: '', title: '', year: new Date().getFullYear(), genre: '', thumbnail: '', poster: '', trailer: '', movie: '', synopsis: '', laurels: [], published: true }
+        ? { slug: '', title: '', year: new Date().getFullYear(), genre: '', thumbnail: '', poster: '', backdrop: '', trailer: '', movie: '', synopsis: '', laurels: [], published: true }
         : admin.shorts.find(s => s.slug === admin.editing);
 
     return `
@@ -259,6 +262,7 @@ function renderEditor() {
             <div class="admin-form__images">
                 ${renderImageField('thumbnail', 'Miniatura horizontal', 'Sale en las tarjetas del inicio y en "Más cortometrajes". Mejor 16:9.', short.thumbnail, 'media--video')}
                 ${renderImageField('poster', 'Póster vertical', 'Sale en la ficha del corto. Si no hay, se usa la miniatura.', short.poster, 'media--poster')}
+                ${hasBackdropColumn() ? renderImageField('backdrop', 'Fotograma de fondo (opcional)', 'Un fotograma horizontal limpio, sin título ni créditos. Se usa de fondo en la portada y en la ficha. Si no hay, se usa la miniatura.', short.backdrop || '', 'media--video') : ''}
             </div>
 
             <fieldset class="admin-form__laurels">
@@ -338,6 +342,7 @@ function readForm(form) {
         trailer: get('trailer'),
         thumbnail: get('thumbnail'),
         poster: get('poster'),
+        ...(hasBackdropColumn() ? { backdrop: get('backdrop') } : {}),
         published: form.elements.published.checked,
         laurels: []
     };
@@ -367,8 +372,8 @@ function readForm(form) {
         }
     }
 
-    for (const name of ['thumbnail', 'poster']) {
-        if (!IMAGE_PATTERN.test(values[name])) {
+    for (const name of ['thumbnail', 'poster', 'backdrop']) {
+        if (name in values && !IMAGE_PATTERN.test(values[name])) {
             return { error: 'La imagen debe ser una ruta como img/archivo.png o un enlace https:// (sin espacios ni comillas).', field: name };
         }
     }
@@ -568,7 +573,7 @@ function bindPanelEvents() {
         }
         if (name === 'slug') form.elements.slug.dataset.touched = 'true';
         if (name === 'synopsis') form.querySelector('[data-counter]').textContent = event.target.value.length;
-        if (name === 'thumbnail' || name === 'poster') {
+        if (name === 'thumbnail' || name === 'poster' || name === 'backdrop') {
             clearTimeout(event.target.previewTimer);
             event.target.previewTimer = setTimeout(() => {
                 const value = event.target.value.trim();

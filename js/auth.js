@@ -136,7 +136,7 @@ function createAuthDialog() {
     dialog.className = 'auth-dialog';
     dialog.setAttribute('aria-labelledby', 'auth-title');
     dialog.innerHTML = `
-        <button type="button" class="auth-dialog__close" data-auth-close aria-label="Cerrar">×</button>
+        <button type="button" class="auth-dialog__close" data-auth-close aria-label="Cerrar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         <h2 id="auth-title" class="auth-dialog__title">Inicia sesión</h2>
         <p class="auth-dialog__reason" hidden></p>
 

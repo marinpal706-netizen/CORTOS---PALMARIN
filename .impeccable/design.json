@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-15T12:00:00Z",
+  "title": "Design System: PLMRN Studio",
+  "extensions": {
+    "colorMeta": {
+      "azul-noche": { "role": "neutral", "displayName": "Azul noche", "canonical": "#0b1018", "cssVar": "--bg", "tonalRamp": ["#070b11", "#0b1018", "#121a26", "#1a2433", "#243046", "#3a4a63", "#6b7a93", "#b4bccb"] },
+      "azul-noche-profundo": { "role": "neutral", "displayName": "Azul noche profundo", "canonical": "#070b11", "cssVar": "--bg-deep", "tonalRamp": ["#030508", "#070b11", "#0b1018", "#121a26", "#1a2433", "#243046", "#3a4a63", "#6b7a93"] },
+      "superficie-marino": { "role": "neutral", "displayName": "Superficie marino", "canonical": "#121a26", "cssVar": "--surface", "tonalRamp": ["#070b11", "#0b1018", "#121a26", "#1a2433", "#243046", "#3a4a63", "#6b7a93", "#b4bccb"] },
+      "superficie-marino-alta": { "role": "neutral", "displayName": "Superficie marino alta", "canonical": "#1a2433", "cssVar": "--surface-2", "tonalRamp": ["#070b11", "#0b1018", "#121a26", "#1a2433", "#243046", "#3a4a63", "#6b7a93", "#b4bccb"] },
+      "superficie-marino-tope": { "role": "neutral", "displayName": "Superficie marino tope", "canonical": "#243046", "cssVar": "--surface-3", "tonalRamp": ["#070b11", "#0b1018", "#121a26", "#1a2433", "#243046", "#3a4a63", "#6b7a93", "#b4bccb"] },
+      "hilo-blanco": { "role": "neutral", "displayName": "Hilo blanco", "canonical": "rgba(255, 255, 255, 0.08)", "cssVar": "--line" },
+      "hilo-blanco-marcado": { "role": "neutral", "displayName": "Hilo blanco marcado", "canonical": "rgba(255, 255, 255, 0.18)", "cssVar": "--line-strong" },
+      "blanco": { "role": "primary", "displayName": "Blanco", "canonical": "#ffffff", "cssVar": "--text", "tonalRamp": ["#243046", "#3a4a63", "#6b7a93", "#8b95a7", "#b4bccb", "#dbe0e8", "#f2f4f7", "#ffffff"] },
+      "blanco-suave": { "role": "primary", "displayName": "Blanco suave", "canonical": "rgba(255, 255, 255, 0.86)", "cssVar": "--soft" },
+      "gris-niebla": { "role": "neutral", "displayName": "Gris niebla", "canonical": "#b4bccb", "cssVar": "--muted", "tonalRamp": ["#1a2433", "#2f3b4f", "#4a576d", "#6b7a93", "#8b95a7", "#b4bccb", "#d3d8e1", "#eef0f4"] },
+      "gris-pizarra": { "role": "neutral", "displayName": "Gris pizarra", "canonical": "#8b95a7", "cssVar": "--dim", "tonalRamp": ["#1a2433", "#2f3b4f", "#4a576d", "#6b7a93", "#8b95a7", "#a6aebd", "#c8cdd7", "#e9ecf0"] },
+      "cristal": { "role": "neutral", "displayName": "Cristal", "canonical": "rgba(255, 255, 255, 0.14)", "cssVar": "--glass" },
+      "cristal-intenso": { "role": "neutral", "displayName": "Cristal intenso", "canonical": "rgba(255, 255, 255, 0.22)", "cssVar": "--glass-strong" },
+      "estado-exito": { "role": "status", "displayName": "Verde estado (solo mensajes)", "canonical": "#6ee7a8", "cssVar": "--success" },
+      "estado-error": { "role": "status", "displayName": "Rojo estado (solo mensajes)", "canonical": "#ff8a8a", "cssVar": "--error" },
+      "estado-info": { "role": "status", "displayName": "Azul estado (solo mensajes)", "canonical": "#b9c8ff", "cssVar": "--info" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Título del carrusel y de la ficha, siempre sobre imagen." },
+      "headline": { "displayName": "Headline", "purpose": "Títulos de sección del catálogo y de páginas de texto." },
+      "title": { "displayName": "Title", "purpose": "Título de cada fila deslizable y de los paneles." },
+      "item": { "displayName": "Item", "purpose": "Nombre del corto en mosaicos y tarjetas." },
+      "body": { "displayName": "Body", "purpose": "Texto general; 15px por debajo de 600px." },
+      "label": { "displayName": "Label", "purpose": "Encabezado de panel y de columna del pie, en mayúsculas espaciadas." }
+    },
+    "shadows": [
+      { "name": "lift", "value": "0 18px 40px -16px rgba(0, 0, 0, 0.75)", "purpose": "Hover de mosaico y tarjeta, junto con un anillo blanco de 2px (0 0 0 2px var(--text))." },
+      { "name": "floating", "value": "0 20px 40px -12px rgba(0, 0, 0, 0.7)", "purpose": "Menú de compartir y avisos." },
+      { "name": "dialog", "value": "0 40px 80px -20px rgba(0, 0, 0, 0.85)", "purpose": "Ventana de acceso." },
+      { "name": "poster", "value": "0 30px 60px -20px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.18)", "purpose": "Póster vertical de la ficha." },
+      { "name": "glass-blur", "value": "backdrop-filter: blur(8px–14px)", "purpose": "Cabecera (14px con saturate 150%), botón glass (10px), píldoras de metadatos y flechas (8px)." }
+    ],
+    "motion": [
+      { "name": "ease", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Curva de salida para elevaciones, apariciones, puntos del carrusel y diálogos." },
+      { "name": "slide-crossfade", "value": "opacity 0.8s ease", "purpose": "Cambio de diapositiva del carrusel; avance automático cada 10s, con pausa." },
+      { "name": "hero-zoom", "value": "scale(1.08) → scale(1), 14s ease-out", "purpose": "Acercamiento lento de la imagen activa del carrusel." },
+      { "name": "clip-fade", "value": "opacity 1.2s ease, tras playerState 1 + 3s", "purpose": "Aparición del clip de YouTube; solo con hover/pointer fino, sin movimiento reducido ni saveData." },
+      { "name": "tile-lift", "value": "translateY(-4px) 0.35s var(--ease); imagen scale(1.05) 0.6s", "purpose": "Hover de mosaicos y tarjetas." },
+      { "name": "fade-up", "value": "translateY(14px) → 0, 0.8s var(--ease), escalonado 0.08s", "purpose": "Entrada del texto del carrusel y de la ficha." },
+      { "name": "reduced-motion", "value": "animation: none; transition: none", "purpose": "Todo el movimiento se apaga con prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "admin", "value": "899px" },
+      { "name": "feature", "value": "960px" },
+      { "name": "mobile", "value": "760px" },
+      { "name": "small", "value": "600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón primario",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Píldora blanca sólida para la acción principal; sobre imagen crece y lleva el icono de play.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M7 4.5v15l13-7.5z\"/></svg>Ver ahora</a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 13px 28px; border: 1.5px solid var(--text); border-radius: var(--pill); background: var(--text); color: var(--bg); font-family: var(--font); font-size: 1.02rem; font-weight: 700; line-height: 1.15; text-decoration: none; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s var(--ease); } .ds-btn-primary:hover { background: var(--soft); border-color: transparent; } .ds-btn-primary:active { transform: scale(0.97); } .ds-btn-primary:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }"
+    },
+    {
+      "name": "Botón cristal",
+      "kind": "button",
+      "refersTo": "button-glass",
+      "description": "Acción secundaria sobre imagen: blanco translúcido con desenfoque.",
+      "html": "<div class=\"ds-glass-stage\"><a class=\"ds-btn-glass\" href=\"#\">Más información</a></div>",
+      "css": ".ds-glass-stage { padding: 24px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--surface-3), var(--bg-deep)); } .ds-btn-glass { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; border: 1.5px solid transparent; border-radius: var(--pill); background: var(--glass-strong); color: var(--text); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-family: var(--font); font-size: 0.98rem; font-weight: 700; line-height: 1.15; text-decoration: none; cursor: pointer; transition: background 0.2s ease, transform 0.2s var(--ease); } .ds-btn-glass:hover { background: rgba(255, 255, 255, 0.32); } .ds-btn-glass:active { transform: scale(0.97); } .ds-btn-glass:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }"
+    },
+    {
+      "name": "Botón fantasma",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Acción secundaria sobre superficie: borde fino que se vuelve blanco en hover.",
+      "html": "<button type=\"button\" class=\"ds-btn-ghost\">Compartir</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; border: 1.5px solid var(--line-strong); border-radius: var(--pill); background: transparent; color: var(--text); font-family: var(--font); font-size: 0.98rem; font-weight: 700; line-height: 1.15; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s var(--ease); } .ds-btn-ghost:hover { background: var(--glass); border-color: var(--text); } .ds-btn-ghost:active { transform: scale(0.97); } .ds-btn-ghost:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }"
+    },
+    {
+      "name": "Chip de género",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Filtro del catálogo; inactivo en superficie, activo en blanco sólido. Nunca lleva color de género.",
+      "html": "<div class=\"ds-chips\"><button type=\"button\" class=\"ds-chip ds-chip--active\" aria-pressed=\"true\">Todos</button><button type=\"button\" class=\"ds-chip\" aria-pressed=\"false\">Terror</button><button type=\"button\" class=\"ds-chip\" aria-pressed=\"false\">Suspense</button></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border: 0; border-radius: var(--pill); background: var(--surface-2); color: var(--muted); font-family: var(--font); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: color 0.2s ease, background 0.2s ease; } .ds-chip:hover { color: var(--text); background: var(--surface-3); } .ds-chip--active, .ds-chip--active:hover { color: var(--bg); background: var(--text); } .ds-chip:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }"
+    },
+    {
+      "name": "Campo de búsqueda",
+      "kind": "input",
+      "refersTo": "search-field",
+      "description": "Píldora de superficie con lupa; con foco, borde e icono blancos.",
+      "html": "<label class=\"ds-search\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"M20 20l-3.5-3.5\"/></svg><input type=\"search\" placeholder=\"Buscar por título\" aria-label=\"Buscar cortometrajes\"></label>",
+      "css": ".ds-search { display: flex; align-items: center; gap: 10px; max-width: 340px; padding: 0 16px; border: 1.5px solid transparent; border-radius: var(--pill); background: var(--surface-2); color: var(--muted); transition: border-color 0.2s ease, color 0.2s ease; } .ds-search:hover { border-color: var(--line-strong); } .ds-search:focus-within { border-color: var(--text); color: var(--text); } .ds-search input { flex: 1; min-width: 0; padding: 11px 0; border: 0; background: none; color: var(--text); font-family: var(--font); font-size: 0.98rem; } .ds-search input::placeholder { color: var(--dim); } .ds-search input:focus { outline: none; }"
+    },
+    {
+      "name": "Cabecera con navegación",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Cabecera translúcida con logotipo de texto, enlaces en píldora y búsqueda circular.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-brand\" href=\"#\"><span class=\"ds-brand__logo\">PLMRN</span><span class=\"ds-brand__badge\">Studio</span></a><nav class=\"ds-nav\" aria-label=\"Secciones\"><a href=\"#\" class=\"is-active\" aria-current=\"true\">Cortometrajes</a><a href=\"#\">Guiones</a><a href=\"#\">Sobre nosotros</a></nav><a class=\"ds-header__search\" href=\"#\" aria-label=\"Buscar\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"M20 20l-3.5-3.5\"/></svg></a></header>",
+      "css": ".ds-header { display: flex; align-items: center; gap: 36px; min-height: var(--header-h); padding: 0 var(--edge); background: rgba(11, 16, 24, 0.88); -webkit-backdrop-filter: saturate(150%) blur(14px); backdrop-filter: saturate(150%) blur(14px); border-bottom: 1px solid var(--line); font-family: var(--font); color: var(--text); } .ds-brand { display: flex; align-items: baseline; gap: 10px; color: var(--text); text-decoration: none; } .ds-brand__logo { font-weight: 800; font-size: 1.45rem; letter-spacing: 0.04em; line-height: 1; } .ds-brand__badge { font-weight: 600; font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); } .ds-nav { display: flex; gap: 6px; margin-right: auto; } .ds-nav a { padding: 8px 14px; border-radius: var(--pill); font-size: 0.98rem; font-weight: 500; color: var(--muted); text-decoration: none; transition: color 0.2s ease, background 0.2s ease; } .ds-nav a:hover { color: var(--text); background: var(--glass); } .ds-nav a.is-active { color: var(--text); font-weight: 700; } .ds-nav a:focus-visible, .ds-header__search:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; } .ds-header__search { display: inline-grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: var(--text); transition: background 0.2s ease; } .ds-header__search:hover { background: var(--glass); }"
+    },
+    {
+      "name": "Mosaico de fila",
+      "kind": "card",
+      "refersTo": "row-tile",
+      "description": "Imagen 16:9 con el título sobre un degradado; en hover sube con anillo blanco.",
+      "html": "<a class=\"ds-tile\" href=\"#\"><span class=\"ds-tile__media\"></span><span class=\"ds-tile__info\"><span class=\"ds-tile__title\">Sonoro</span><span class=\"ds-tile__meta\">2025 · Terror</span></span></a>",
+      "css": ".ds-tile { position: relative; display: block; width: 300px; border-radius: var(--radius); overflow: hidden; background: var(--surface); color: var(--text); font-family: var(--font); text-decoration: none; transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease); } .ds-tile__media { display: block; aspect-ratio: 16 / 9; background: radial-gradient(120% 90% at 70% 30%, var(--surface-3), var(--bg-deep)); transition: transform 0.6s var(--ease); } .ds-tile__info { position: absolute; inset: auto 0 0 0; display: flex; flex-direction: column; gap: 2px; padding: 44px 16px 14px; background: linear-gradient(to top, rgba(7, 11, 17, 0.95) 0%, rgba(7, 11, 17, 0.6) 55%, rgba(7, 11, 17, 0) 100%); } .ds-tile__title { font-weight: 700; font-size: 1.05rem; line-height: 1.2; } .ds-tile__meta { font-size: 0.8rem; font-weight: 500; color: rgba(255, 255, 255, 0.78); } .ds-tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift), 0 0 0 2px var(--text); } .ds-tile:hover .ds-tile__media { transform: scale(1.05); } .ds-tile:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }"
+    },
+    {
+      "name": "Tarjeta del catálogo",
+      "kind": "card",
+      "refersTo": "catalogue-card",
+      "description": "Tarjeta con imagen 16:9, cuerpo de texto y play blanco que aparece en hover.",
+      "html": "<a class=\"ds-card\" href=\"#\"><span class=\"ds-card__media\"><span class=\"ds-card__play\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"currentColor\"><path d=\"M7 4.5v15l13-7.5z\"/></svg></span></span><span class=\"ds-card__body\"><span class=\"ds-card__title\">Ese nombre me suena</span><span class=\"ds-card__meta\">2024 · Suspense</span><span class=\"ds-card__text\">Una llamada a deshoras pone en duda todo lo que recuerda.</span></span></a>",
+      "css": ".ds-card { display: flex; flex-direction: column; width: 320px; border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); color: var(--text); font-family: var(--font); text-decoration: none; transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), background 0.2s ease; } .ds-card__media { position: relative; display: block; aspect-ratio: 16 / 9; background: radial-gradient(120% 90% at 30% 40%, var(--surface-3), var(--bg-deep)); } .ds-card__play { position: absolute; top: 50%; left: 50%; display: grid; place-items: center; width: 56px; height: 56px; margin: -28px 0 0 -28px; padding-left: 3px; border-radius: 50%; background: var(--text); color: var(--bg); box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.6); opacity: 0; transform: scale(0.85); transition: opacity 0.25s ease, transform 0.35s var(--ease); } .ds-card__body { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 20px; } .ds-card__title { font-weight: 700; font-size: 1.15rem; line-height: 1.25; letter-spacing: -0.01em; } .ds-card__meta { font-size: 0.85rem; font-weight: 500; color: var(--muted); } .ds-card__text { font-size: 0.92rem; line-height: 1.5; color: var(--muted); } .ds-card:hover { transform: translateY(-4px); background: var(--surface-2); box-shadow: var(--shadow-lift), 0 0 0 2px var(--text); } .ds-card:hover .ds-card__play { opacity: 1; transform: none; } .ds-card:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }"
+    },
+    {
+      "name": "Píldora de metadatos del carrusel",
+      "kind": "chip",
+      "refersTo": "hero-meta-pill",
+      "description": "Año, género y valoración en cristal con desenfoque, sobre la imagen del carrusel.",
+      "html": "<div class=\"ds-meta-stage\"><p class=\"ds-hero-meta\"><span>2025</span><span>Terror</span><span><svg viewBox=\"0 0 24 24\" width=\"14\" height=\"14\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M12 2.8l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 16.8l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z\"/></svg>4,6</span></p></div>",
+      "css": ".ds-meta-stage { padding: 20px; border-radius: var(--radius-lg); background: linear-gradient(135deg, var(--surface-3), var(--bg-deep)); } .ds-hero-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; font-family: var(--font); color: var(--text); } .ds-hero-meta > span { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: var(--pill); background: var(--glass); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: 0.85rem; font-weight: 600; transition: background 0.2s ease; } .ds-hero-meta > span:hover { background: var(--glass-strong); }"
+    },
+    {
+      "name": "Píldora de laurel",
+      "kind": "custom",
+      "refersTo": "laurel-pill",
+      "description": "Selección real en festival: etiqueta de tipo en blanco sólido y nombre del festival.",
+      "html": "<ul class=\"ds-laurels\"><li class=\"ds-laurel\" tabindex=\"0\"><span class=\"ds-laurel__type\">Finalista</span><span class=\"ds-laurel__name\">HorrorHound Festival</span></li><li class=\"ds-laurel\" tabindex=\"0\"><span class=\"ds-laurel__type\">Seleccionado</span><span class=\"ds-laurel__name\">Almamoura FilmFestival</span></li></ul>",
+      "css": ".ds-laurels { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; font-family: var(--font); } .ds-laurel { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: var(--pill); background: var(--surface-2); font-size: 0.78rem; transition: background 0.2s ease; } .ds-laurel:hover { background: var(--surface-3); } .ds-laurel:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; } .ds-laurel__type { padding: 2px 8px; border-radius: var(--pill); background: var(--text); color: var(--bg); font-size: 0.64rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; } .ds-laurel__name { font-weight: 500; color: var(--soft); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "La sala en casa",
+    "overview": "PLMRN se presenta como una plataforma de streaming de sus propios cortos: se entra a un corto que ya se está reproduciendo, se pasa al siguiente con un gesto y luego se recorren filas por estado de ánimo hasta el catálogo completo. El sistema juega el estándar del género sin ironía; la identidad del estudio no la ponen adornos sino la calidad de los fotogramas y el cuidado del oficio (alineación, ritmo, transiciones).\n\nEl mundo tiene dos colores: un azul noche que hace de sala a oscuras, con superficies marinas en capas, y el blanco, que es a la vez el texto y el único acento. Todo lo que pide atención (la acción principal, el estado activo, las estrellas, los corazones, el anillo de hover) es blanco. Las formas son redondeadas y amables: píldoras para cada acción, mosaicos con esquinas suaves, paneles de esquina amplia. La densidad es la de un portal: imágenes grandes, filas deslizables y texto breve encima de la imagen, nunca un muro de párrafos.\n\nRechazos confirmados por el propietario: un estilo editorial sobrio (programa de mano, serif de cartel) y un sistema de cartones de color por género. El portal no es minimalista ni frío: el calor lo aportan la imagen, el clip en movimiento y las formas redondas.",
+    "keyCharacteristics": [
+      "Fondo azul noche con superficies marinas en tres alturas; blanco como único acento.",
+      "Imágenes que solo salen de las películas: fotogramas y clips.",
+      "Carrusel a sangre con clip de YouTube silenciado que aparece cuando ya se reproduce.",
+      "Filas deslizables de mosaicos 16:9 con el título sobre un degradado.",
+      "Píldoras para todas las acciones; una sola familia tipográfica, Figtree, en negrita para los títulos.",
+      "Todos los bordes alineados a un margen lateral común."
+    ],
+    "rules": [
+      { "name": "The Two-Colour Rule", "body": "Solo existen el azul noche y el blanco. El género nunca se codifica con color: terror, suspense o cualquier género futuro comparten la misma paleta, y se distinguen por la fila y por la imagen.", "section": "colors" },
+      { "name": "The Status-Only Rule", "body": "Los colores de estado solo aparecen en mensajes de formulario. Si un elemento necesita destacar, se hace blanco, no verde, rojo ni azul.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Figtree en todo. Los títulos ganan presencia con peso 800 y tracking negativo, nunca con una tipografía de exhibición aparte.", "section": "typography" },
+      { "name": "The Edge Rule", "body": "Todos los bordes se alinean a `edge`. Las flechas del carrusel y de las filas se colocan en el margen, fuera de esa línea, para no tapar nunca el título ni el primer mosaico.", "section": "layout" },
+      { "name": "The Full-Width Thumb Rule", "body": "En móvil, las acciones del carrusel y de la ficha se apilan en una sola columna y cada botón ocupa todo el ancho.", "section": "layout" },
+      { "name": "The Lift-on-Response Rule", "body": "Mosaicos y tarjetas están planos en reposo. Al pasar el ratón suben 4px, reciben la sombra Lift y un anillo blanco de 2px, y su imagen se acerca levemente (1.04–1.05).", "section": "elevation" },
+      { "name": "The Pill Rule", "body": "Toda acción es una píldora. Blanco sólido para la principal; cristal translúcido para la secundaria sobre imagen; borde fino para la fantasma sobre superficie.", "section": "shapes" },
+      { "name": "The Films-Only Imagery Rule", "body": "Las imágenes salen solo de los cortos: fotogramas, miniaturas, pósteres y clips. Ni fotos de archivo, ni ilustraciones, ni texturas decorativas. Si una imagen falla, se muestra el título en gris pizarra sobre la superficie.", "section": "components" },
+      { "name": "The Clip-Earns-Its-Place Rule", "body": "El clip aparece solo tras la confirmación de reproducción (estado 1 más 3s), solo con puntero fino de ordenador, nunca con movimiento reducido ni ahorro de datos. La imagen fija es el respaldo.", "section": "components" },
+      { "name": "The Clean-Frame Rule", "body": "El carrusel, la ficha y los mosaicos prefieren el campo opcional `backdrop` (un fotograma limpio, sin letras) a la miniatura con el título incrustado. Hoy esos fotogramas limpios todavía no existen: hasta que se suban, la miniatura de cartel (con el título quemado) es el respaldo, y por eso a veces el título aparece dos veces. Las tarjetas del catálogo usan la miniatura.", "section": "components" }
+    ],
+    "dos": [
+      "Do usar blanco (`blanco`) para cualquier cosa que deba destacar: acción principal, estado activo, estrellas, corazón, anillo de hover y foco.",
+      "Do alinear todo borde izquierdo al margen `edge` (`clamp(16px, 4vw, 56px)`).",
+      "Do hacer cada acción una píldora: blanco sólido para la principal, cristal (`cristal-intenso`, `blur(10px)`) para la secundaria sobre imagen, fantasma para la secundaria sobre superficie.",
+      "Do poner el título sobre la imagen con un degradado de azul noche, nunca en una caja aparte en los mosaicos.",
+      "Do dar a las acciones del carrusel y de la ficha el ancho completo en móvil (por debajo de 760px).",
+      "Do usar `backdrop` cuando exista y la miniatura como respaldo, a través de una única función.",
+      "Do apagar animaciones, transiciones y clips con movimiento reducido."
+    ],
+    "donts": [
+      "Don't asignar un color a un género ni añadir un tercer color de marca.",
+      "Don't usar verde, rojo o azul de estado fuera de los mensajes de formulario.",
+      "Don't usar imágenes que no salgan de los propios cortos.",
+      "Don't mostrar el clip antes de que YouTube confirme la reproducción, ni en móvil, ni con ahorro de datos.",
+      "Don't usar esquinas rectas ni botones rectangulares; los radios son 10, 14, 20 o píldora.",
+      "Don't introducir una segunda familia tipográfica para los títulos.",
+      "Don't colocar las flechas de navegación encima del título o del primer mosaico."
+    ]
+  }
+}
