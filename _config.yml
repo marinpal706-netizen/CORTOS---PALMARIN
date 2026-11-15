@@ -1,0 +1,6 @@
+# Configuración de GitHub Pages (Jekyll).
+# Los archivos de "exclude" siguen en GitHub, pero no se publican en la web.
+# DESIGN.md y PRODUCT.md son notas internas de diseño que usa Impeccable.
+exclude:
+  - DESIGN.md
+  - PRODUCT.md
