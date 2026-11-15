@@ -264,8 +264,15 @@ create table if not exists public.film_comments (
 -- Para proyectos donde la tabla ya existía sin la columna de puntuación.
 alter table public.film_comments add column if not exists score smallint check (score between 1 and 5);
 
+-- Respuestas: parent_id apunta al comentario principal (un solo nivel).
+-- Si se borra el comentario principal, se borran también sus respuestas.
+alter table public.film_comments add column if not exists parent_id bigint references public.film_comments (id) on delete cascade;
+-- Número de "me gusta" (se mantiene solo con el trigger de comment_likes).
+alter table public.film_comments add column if not exists like_count integer not null default 0 check (like_count >= 0);
+
 create index if not exists film_comments_film_created_idx on public.film_comments (film_slug, created_at desc);
 create index if not exists film_comments_user_created_idx on public.film_comments (user_id, created_at desc);
+create index if not exists film_comments_parent_idx on public.film_comments (parent_id, created_at);
 
 alter table public.film_comments enable row level security;
 
@@ -283,18 +290,34 @@ create policy "Usuarios borran sus comentarios" on public.film_comments
 
 revoke all on public.film_comments from anon, authenticated;
 grant select on public.film_comments to anon, authenticated;
-grant insert (film_slug, body) on public.film_comments to authenticated;
+grant insert (film_slug, body, parent_id) on public.film_comments to authenticated;
 grant delete on public.film_comments to authenticated;
 
 -- Al publicar: antispam (como mucho un comentario cada 15 segundos por usuario)
 -- y se guarda la valoración que el autor tiene en ese momento para el corto.
+-- Las respuestas deben ser del mismo corto; si se responde a una respuesta,
+-- se cuelga del comentario principal (solo hay un nivel).
 create or replace function public.limit_comment_rate()
 returns trigger
 language plpgsql
 security definer
 set search_path = ''
 as $$
+declare
+    v_parent_film   text;
+    v_parent_parent bigint;
 begin
+    if new.parent_id is not null then
+        select film_slug, parent_id into v_parent_film, v_parent_parent
+          from public.film_comments
+         where id = new.parent_id;
+        if not found or v_parent_film <> new.film_slug then
+            raise exception 'invalid_parent' using errcode = '22023';
+        end if;
+        new.parent_id := coalesce(v_parent_parent, new.parent_id);
+    end if;
+    new.like_count := 0;
+
     if exists (
         select 1 from public.film_comments
          where user_id = new.user_id
@@ -323,6 +346,67 @@ update public.film_comments c
    set score = v.score
   from public.film_user_votes v
  where c.score is null and v.film_slug = c.film_slug and v.user_id = c.user_id;
+
+-- ==========================================
+-- "Me gusta" en comentarios
+-- ==========================================
+-- Un "me gusta" por (comentario, usuario). Cada usuario solo ve y borra los suyos;
+-- el total público está en film_comments.like_count.
+
+create table if not exists public.comment_likes (
+    comment_id bigint      not null references public.film_comments (id) on delete cascade,
+    user_id    uuid        not null default auth.uid() references public.profiles (id) on delete cascade,
+    created_at timestamptz not null default now(),
+    primary key (comment_id, user_id)
+);
+
+create index if not exists comment_likes_user_idx on public.comment_likes (user_id);
+
+alter table public.comment_likes enable row level security;
+
+drop policy if exists "Cada usuario ve sus me gusta" on public.comment_likes;
+create policy "Cada usuario ve sus me gusta" on public.comment_likes
+    for select to authenticated using ((select auth.uid()) = user_id);
+
+drop policy if exists "Cada usuario da sus me gusta" on public.comment_likes;
+create policy "Cada usuario da sus me gusta" on public.comment_likes
+    for insert to authenticated with check ((select auth.uid()) = user_id);
+
+drop policy if exists "Cada usuario quita sus me gusta" on public.comment_likes;
+create policy "Cada usuario quita sus me gusta" on public.comment_likes
+    for delete to authenticated using ((select auth.uid()) = user_id);
+
+revoke all on public.comment_likes from anon, authenticated;
+grant select, delete on public.comment_likes to authenticated;
+grant insert (comment_id) on public.comment_likes to authenticated;
+
+create or replace function public.update_comment_like_count()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+    if tg_op = 'INSERT' then
+        update public.film_comments set like_count = like_count + 1 where id = new.comment_id;
+    else
+        update public.film_comments set like_count = greatest(like_count - 1, 0) where id = old.comment_id;
+    end if;
+    return null;
+end;
+$$;
+
+drop trigger if exists comment_likes_count on public.comment_likes;
+create trigger comment_likes_count
+    after insert or delete on public.comment_likes
+    for each row execute function public.update_comment_like_count();
+
+revoke all on function public.update_comment_like_count() from public, anon, authenticated;
+
+-- Recalcula los totales (deja todo coherente al reinstalar).
+update public.film_comments c
+   set like_count = (select count(*) from public.comment_likes l where l.comment_id = c.id)
+ where like_count <> (select count(*) from public.comment_likes l where l.comment_id = c.id);
 
 -- ---------- Limpieza opcional ----------
 -- La tabla de votos anónimos de la versión anterior ya no se usa.

@@ -76,6 +76,9 @@ function setupFilters() {
     const grid = document.getElementById('shorts-grid');
     const empty = document.getElementById('shorts-empty');
     const count = document.getElementById('shorts-count');
+    const sort = document.getElementById('shorts-sort');
+    // Sin valoraciones (Supabase sin configurar) solo se ofrece el orden por fecha y título.
+    if (!RATINGS_ENABLED) sort.querySelectorAll('[value="rating"], [value="votes"]').forEach(o => o.remove());
     const normalize = text => (text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
     // "Thriller psicológico / Suspense." cuenta como dos géneros: Thriller psicológico y Suspense.
@@ -92,10 +95,33 @@ function setupFilters() {
             <button type="button" class="chip${genre === activeGenre ? ' is-active' : ''}" data-genre="${escapeHTML(genre)}" aria-pressed="${genre === activeGenre}">${genre ? escapeHTML(genre) : 'Todos'}</button>`).join('');
     }
 
-    function apply() {
+    // "Más recientes" respeta el orden de data.js (los cortos nuevos van arriba).
+    const byTitle = (a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
+    async function sortShorts(list) {
+        if (sort.value === 'title') return list.sort(byTitle);
+        if (sort.value !== 'rating' && sort.value !== 'votes') return list;
+
+        let ratings;
+        try {
+            ratings = await getAllRatings();
+        } catch {
+            return list;
+        }
+        const avg = s => ratings.get(s.slug)?.average || 0;
+        const votes = s => ratings.get(s.slug)?.votes || 0;
+        return list.sort(sort.value === 'rating'
+            ? (a, b) => avg(b) - avg(a) || votes(b) - votes(a)
+            : (a, b) => votes(b) - votes(a) || avg(b) - avg(a));
+    }
+
+    let applyRun = 0;
+    async function apply() {
+        const run = ++applyRun;
         const query = normalize(search.value.trim());
-        const visible = SHORTS.filter(s =>
-            (!activeGenre || genresOf(s).includes(activeGenre)) &&(!query || normalize(s.title).includes(query)));
+        const filtered = SHORTS.filter(s =>
+            (!activeGenre || genresOf(s).includes(activeGenre)) && (!query || normalize(s.title).includes(query)));
+        const visible = await sortShorts(filtered);
+        if (run !== applyRun) return; // otra búsqueda más reciente ya ha pintado
         grid.innerHTML = visible.map(renderShortCard).join('');
         count.textContent = visible.length;
         empty.hidden = visible.length > 0;
@@ -113,11 +139,41 @@ function setupFilters() {
         apply();
     });
     search.addEventListener('input', apply);
+    sort.addEventListener('change', apply);
     apply();
+}
+
+// Datos para Google: el estudio, la web y la lista de cortos.
+function addHomeStructuredData() {
+    const organization = organizationData();
+    setStructuredData('ld-home', {
+        '@context': 'https://schema.org',
+        '@graph': [
+            { ...organization, '@id': `${organization.url}#estudio` },
+            {
+                '@type': 'WebSite',
+                name: organization.name,
+                url: organization.url,
+                inLanguage: 'es',
+                publisher: { '@id': `${organization.url}#estudio` }
+            },
+            {
+                '@type': 'ItemList',
+                name: 'Cortometrajes',
+                itemListElement: SHORTS.map((short, index) => ({
+                    '@type': 'ListItem',
+                    position: index + 1,
+                    url: absoluteUrl(shortUrl(short)),
+                    name: short.title
+                }))
+            }
+        ]
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     setupFilters();
+    addHomeStructuredData();
 
     const scriptsGrid = document.getElementById('scripts-grid');
     if (SCRIPTS.length) {

@@ -62,6 +62,34 @@ function showToast(message, type = 'info') {
     }, 4500);
 }
 
+// Datos estructurados (schema.org) para que Google entienda la página.
+// Se pueden llamar varias veces: cada id sustituye a su versión anterior.
+function setStructuredData(id, data) {
+    let script = document.getElementById(id);
+    if (!script) {
+        script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.id = id;
+        document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(data);
+}
+
+function absoluteUrl(path) {
+    return path ? new URL(path, document.baseURI).href : undefined;
+}
+
+function organizationData() {
+    const sameAs = typeof SITE === 'undefined' ? [] : [SITE.youtube, SITE.instagram, SITE.tiktok, SITE.x].filter(Boolean);
+    return {
+        '@type': 'Organization',
+        name: typeof SITE === 'undefined' ? 'PLMRN Studio' : SITE.name,
+        url: absoluteUrl('index.html').replace(/index\.html$/, ''),
+        logo: absoluteUrl('img/favicon.svg'),
+        ...(sameAs.length ? { sameAs } : {})
+    };
+}
+
 // Pie de página común a todas las páginas. Los enlaces sociales salen de js/site.js.
 function renderFooter() {
     const footer = document.querySelector('.site-footer');

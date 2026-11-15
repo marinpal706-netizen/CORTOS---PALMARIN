@@ -69,6 +69,8 @@ Ya está hecho en [`js/config.js`](../js/config.js) con la **Project URL** y la
 | `film_rating_summary` | Vista pública con la media ya calculada. |
 | `submit_rating(p_film, p_score)` | Endpoint de voto. Exige sesión; crea o cambia el voto y devuelve la nueva media. |
 | `film_comments` | Comentarios. Lectura pública; escribir y borrar solo con sesión y solo los propios. Máx. 1000 caracteres y uno cada 15 segundos por usuario. Guarda la valoración que tenía el autor al comentar (columna `score`). |
+| `film_comments.parent_id` | Respuestas a un comentario (un solo nivel). Si se borra el comentario, se borran sus respuestas. |
+| `comment_likes` | Un "me gusta" por (comentario, usuario). Cada usuario solo ve y quita los suyos; el total público está en `film_comments.like_count`. |
 | `username_available(p_username)` | Comprueba si un nombre de usuario está libre al registrarse. |
 
 ## Problemas frecuentes

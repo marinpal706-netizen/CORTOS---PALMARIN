@@ -69,10 +69,23 @@ function renderCardRatingSlot(short) {
     return RATINGS_ENABLED ? `<div class="card__rating" data-rating-for="${escapeHTML(short.slug)}"></div>` : '';
 }
 
+// Todas las medias se piden una sola vez por visita (las usan las tarjetas y la ordenación).
+let allRatingsPromise = null;
+function getAllRatings() {
+    if (!RATINGS_ENABLED) return Promise.resolve(new Map());
+    if (!allRatingsPromise) {
+        allRatingsPromise = fetchRatings().catch(error => {
+            allRatingsPromise = null;
+            throw error;
+        });
+    }
+    return allRatingsPromise;
+}
+
 async function fillCardRatings() {
     if (!RATINGS_ENABLED) return;
     try {
-        const ratings = await fetchRatings();
+        const ratings = await getAllRatings();
         document.querySelectorAll('[data-rating-for]').forEach(slot => {
             const rating = ratings.get(slot.dataset.ratingFor);
             slot.innerHTML = rating && rating.votes

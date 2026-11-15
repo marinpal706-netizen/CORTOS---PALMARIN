@@ -30,6 +30,37 @@ function mountCarousel(root) {
     update();
 }
 
+// Ficha del corto para Google (schema.org/Movie). Si hay votos, se añade la media.
+function addShortStructuredData(short, rating) {
+    const genres = (short.genre || '').split('/').map(g => g.trim().replace(/\.+$/, '')).filter(Boolean);
+    const awards = (short.laurels || []).map(l => [l.type, l.name].filter(Boolean).join(': '));
+    const youtube = short.movie || short.trailer;
+
+    setStructuredData('ld-short', {
+        '@context': 'https://schema.org',
+        '@type': 'Movie',
+        name: short.title,
+        url: absoluteUrl(shortUrl(short)),
+        image: absoluteUrl(short.poster || short.thumbnail),
+        inLanguage: 'es',
+        ...(short.synopsis ? { description: short.synopsis } : {}),
+        ...(short.year ? { dateCreated: String(short.year) } : {}),
+        ...(genres.length ? { genre: genres } : {}),
+        ...(awards.length ? { award: awards } : {}),
+        ...(youtube ? { sameAs: youtube } : {}),
+        productionCompany: organizationData(),
+        ...(rating && rating.votes ? {
+            aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: rating.average,
+                ratingCount: rating.votes,
+                bestRating: 5,
+                worstRating: 1
+            }
+        } : {})
+    });
+}
+
 function renderVideo(title, label, badge, url) {
     const embed = toYouTubeEmbed(url);
     if (!embed) return '';
@@ -142,5 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
         mountRater(root);
         mountComments(root, SHORTS[index].slug);
         mountCarousel(root);
+
+        const short = SHORTS[index];
+        addShortStructuredData(short);
+        getAllRatings()
+            .then(ratings => addShortStructuredData(short, ratings.get(short.slug)))
+            .catch(() => {});
     }
 });
