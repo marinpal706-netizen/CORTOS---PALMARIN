@@ -134,7 +134,7 @@ function renderTile(short, favorites) {
     return `
         <a class="tile" href="${shortUrl(short)}">
             <span class="tile__media media" data-title="${escapeHTML(short.title)}">
-                <img src="${escapeHTML(backdropOf(short))}" alt="" loading="lazy" onerror="handleImageError(this)">
+                <img src="${escapeHTML(backdropOf(short))}" alt="" loading="lazy" data-img-fallback>
                 ${favorites?.has(short.slug) ? `<span class="tile__fav">${FAVORITE_ICON}<span class="sr-only">En tus favoritos</span></span>` : ''}
             </span>
             <span class="tile__info">
@@ -214,10 +214,17 @@ function renderLaurels(laurels, className = 'laurels') {
 
 // Sustituye una imagen rota por un marcador con el título.
 function handleImageError(img) {
-    img.onerror = null;
     img.closest('.media')?.classList.add('media--missing');
     img.remove();
 }
+
+// Las imágenes marcadas con data-img-fallback usan handleImageError si no cargan.
+// Se escucha en fase de captura (el evento "error" no sube por el DOM) en vez de
+// usar onerror="..." en el HTML, que la política de seguridad (CSP) bloquea.
+document.addEventListener('error', event => {
+    const img = event.target;
+    if (img instanceof HTMLImageElement && img.hasAttribute('data-img-fallback')) handleImageError(img);
+}, true);
 
 // Aviso flotante breve (type: 'success' | 'error' | 'info'), anunciado a lectores de pantalla.
 function showToast(message, type = 'info') {

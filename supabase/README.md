@@ -119,6 +119,13 @@ clic si sospecha que es un robot. Es gratis.
 Si algún día quieres quitarlo: desactívalo en Supabase y deja
 `CAPTCHA_SITE_KEY = ''`.
 
+### Contraseña mínima
+
+La web pide al menos 8 caracteres al crear una cuenta, pero esa comprobación
+se puede saltar. Para que también la exija Supabase: **Authentication →
+Providers → Email → Minimum password length** → `8` → **Save**. Las cuentas
+que ya existen con contraseñas más cortas pueden seguir entrando.
+
 ## 6. Moderar comentarios
 
 - Cada usuario puede borrar sus propios comentarios desde la web.

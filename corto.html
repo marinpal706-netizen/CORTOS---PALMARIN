@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Seguridad (CSP): el navegador solo ejecuta scripts de esta web, de jsDelivr (Supabase)
+         y de Cloudflare (captcha), y solo incrusta vídeos de YouTube. Si añades un servicio externo
+         nuevo (otro CDN, otro reproductor...), hay que añadir su dominio aquí en todas las páginas. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://cohizgnbpmapwccbpesv.supabase.co wss://cohizgnbpmapwccbpesv.supabase.co https://challenges.cloudflare.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>Cortometraje · PLMRN</title>
     <meta name="description" content="Ficha del cortometraje de PLMRN Studio.">
     <meta name="theme-color" content="#0b1018">
@@ -19,7 +23,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=13">
+    <link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -48,20 +52,20 @@
         &copy; <span id="year">2026</span> PLMRN. Todos los derechos reservados.
     </footer>
 
-    <!-- "?v=13" obliga al navegador a descargar la versión nueva. Cuando cambies
+    <!-- "?v=14" obliga al navegador a descargar la versión nueva. Cuando cambies
          cualquier archivo de css/ o js/, sube este número (v=14, v=15...) en TODOS los .html (index, corto, sobre, admin, aviso-legal, privacidad y 404). -->
-    <script src="js/site.js?v=13"></script>
-    <script src="js/data.js?v=13"></script>
-    <script src="js/config.js?v=13"></script>
+    <script src="js/site.js?v=14"></script>
+    <script src="js/data.js?v=14"></script>
+    <script src="js/config.js?v=14"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
         integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-    <script src="js/main.js?v=13"></script>
-    <script src="js/auth.js?v=13"></script>
-    <script src="js/ratings.js?v=13"></script>
-    <script src="js/comments.js?v=13"></script>
-    <script src="js/favorites.js?v=13"></script>
-    <script src="js/shorts.js?v=13"></script>
-    <script src="js/corto.js?v=13"></script>
-    <script src="js/animations.js?v=13"></script>
+    <script src="js/main.js?v=14"></script>
+    <script src="js/auth.js?v=14"></script>
+    <script src="js/ratings.js?v=14"></script>
+    <script src="js/comments.js?v=14"></script>
+    <script src="js/favorites.js?v=14"></script>
+    <script src="js/shorts.js?v=14"></script>
+    <script src="js/corto.js?v=14"></script>
+    <script src="js/animations.js?v=14"></script>
 </body>
 </html>

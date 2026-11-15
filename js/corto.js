@@ -202,7 +202,7 @@ function renderShort(root, short, index, shorts) {
     root.innerHTML = `
         <section class="feature" aria-labelledby="detail-title">
             <div class="feature__media media" data-title="${escapeHTML(short.title)}">
-                <img src="${escapeHTML(backdropOf(short) || poster)}" alt="" fetchpriority="high" onerror="handleImageError(this)">
+                <img src="${escapeHTML(backdropOf(short) || poster)}" alt="" fetchpriority="high" data-img-fallback>
             </div>
             <div class="feature__shade" aria-hidden="true"></div>
             <div class="feature__inner container">
@@ -223,7 +223,7 @@ function renderShort(root, short, index, shorts) {
                         </div>
                     </div>
                     <div class="feature__poster media media--poster ${short.poster ? '' : 'media--fit'}" data-title="${escapeHTML(short.title)}">
-                        <img src="${escapeHTML(poster)}" alt="Póster de ${escapeHTML(short.title)}" onerror="handleImageError(this)">
+                        <img src="${escapeHTML(poster)}" alt="Póster de ${escapeHTML(short.title)}" data-img-fallback>
                     </div>
                 </div>
             </div>
@@ -250,11 +250,11 @@ function renderShort(root, short, index, shorts) {
             ${shorts.length > 1 ? `
             <nav class="pager" aria-label="Otros cortos">
                 <a href="${shortUrl(prev)}">
-                    <span class="pager__media media" data-title="${escapeHTML(prev.title)}"><img src="${escapeHTML(prev.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)"></span>
+                    <span class="pager__media media" data-title="${escapeHTML(prev.title)}"><img src="${escapeHTML(prev.thumbnail)}" alt="" loading="lazy" data-img-fallback></span>
                     <span class="pager__text"><small>${ARROW_LEFT_ICON} Anterior</small>${escapeHTML(prev.title)}</span>
                 </a>
                 <a href="${shortUrl(next)}" class="pager__next">
-                    <span class="pager__media media" data-title="${escapeHTML(next.title)}"><img src="${escapeHTML(next.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)"></span>
+                    <span class="pager__media media" data-title="${escapeHTML(next.title)}"><img src="${escapeHTML(next.thumbnail)}" alt="" loading="lazy" data-img-fallback></span>
                     <span class="pager__text"><small>Siguiente ${ARROW_RIGHT_ICON}</small>${escapeHTML(next.title)}</span>
                 </a>
             </nav>` : ''}

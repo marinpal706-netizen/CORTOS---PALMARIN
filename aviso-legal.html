@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Seguridad (CSP): el navegador solo ejecuta scripts de esta web, de jsDelivr (Supabase)
+         y de Cloudflare (captcha), y solo incrusta vídeos de YouTube. Si añades un servicio externo
+         nuevo (otro CDN, otro reproductor...), hay que añadir su dominio aquí en todas las páginas. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://cohizgnbpmapwccbpesv.supabase.co wss://cohizgnbpmapwccbpesv.supabase.co https://challenges.cloudflare.com; frame-src https://www.youtube-nocookie.com https://www.youtube.com https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'">
     <title>Aviso legal · PLMRN</title>
     <meta name="description" content="Aviso legal y condiciones de uso de la web de PLMRN Studio.">
     <meta name="theme-color" content="#0b1018">
@@ -12,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400..800;1,400..600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=13">
+    <link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -72,7 +76,7 @@
         &copy; 2026 PLMRN. Todos los derechos reservados.
     </footer>
 
-    <script src="js/site.js?v=13"></script>
-    <script src="js/main.js?v=13"></script>
+    <script src="js/site.js?v=14"></script>
+    <script src="js/main.js?v=14"></script>
 </body>
 </html>

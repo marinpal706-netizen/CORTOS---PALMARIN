@@ -141,7 +141,7 @@ function renderShortList() {
                 <li class="admin-item${short.slug === admin.editing ? ' is-active' : ''}${short.published ? '' : ' is-hidden'}">
                     <button type="button" class="admin-item__main" data-admin="edit" data-slug="${escapeHTML(short.slug)}">
                         <span class="admin-item__thumb media media--video" data-title="${escapeHTML(short.title)}">
-                            ${short.thumbnail ? `<img src="${escapeHTML(short.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)">` : ''}
+                            ${short.thumbnail ? `<img src="${escapeHTML(short.thumbnail)}" alt="" loading="lazy" data-img-fallback>` : ''}
                         </span>
                         <span class="admin-item__text">
                             <strong>${escapeHTML(short.title)}</strong>
@@ -164,7 +164,7 @@ function renderImageField(name, label, hint, value, variant) {
         <div class="image-field" data-image-field="${name}">
             <span class="field__label">${label}</span>
             <div class="image-field__preview media ${variant}" data-title="Sin imagen">
-                ${value ? `<img src="${escapeHTML(value)}" alt="" onerror="handleImageError(this)">` : ''}
+                ${value ? `<img src="${escapeHTML(value)}" alt="" data-img-fallback>` : ''}
             </div>
             <div class="image-field__actions">
                 <label class="btn btn--sm btn--ghost image-field__upload">
@@ -325,7 +325,7 @@ function setImageValue(form, name, value) {
     form.elements[name].value = value;
     const preview = field.querySelector('.image-field__preview');
     preview.classList.remove('media--missing');
-    preview.innerHTML = value ? `<img src="${escapeHTML(value)}" alt="" onerror="handleImageError(this)">` : '';
+    preview.innerHTML = value ? `<img src="${escapeHTML(value)}" alt="" data-img-fallback>` : '';
     field.querySelector('[data-admin="clear-image"]').hidden = !value;
 }
 

@@ -26,7 +26,7 @@ let captchaWidgetId = null;
 let captchaToken = null;
 let turnstilePromise = null;
 
-const MIN_PASSWORD_LENGTH = 6;
+const MIN_PASSWORD_LENGTH = 8;
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,20}$/;
 const USERNAME_EMAIL_DOMAIN = 'usuarios.plmrn.invalid';
 
@@ -243,7 +243,11 @@ function setAuthMode(mode) {
 
     dialog.querySelector('.auth-dialog__title').textContent = isSignup ? 'Crea tu cuenta' : 'Inicia sesión';
     dialog.querySelector('.auth-form__submit').textContent = isSignup ? 'Crear cuenta' : 'Iniciar sesión';
-    dialog.querySelector('input[name="password"]').autocomplete = isSignup ? 'new-password' : 'current-password';
+    const passwordInput = dialog.querySelector('input[name="password"]');
+    passwordInput.autocomplete = isSignup ? 'new-password' : 'current-password';
+    // Contraseñas antiguas de 6 caracteres siguen valiendo para iniciar sesión.
+    if (isSignup) passwordInput.minLength = MIN_PASSWORD_LENGTH;
+    else passwordInput.removeAttribute('minlength');
     dialog.querySelectorAll('[data-signup-only]').forEach(el => { el.hidden = !isSignup; });
     dialog.querySelectorAll('[data-auth-mode]').forEach(button => {
         button.setAttribute('aria-pressed', String(button.dataset.authMode === mode));
@@ -284,8 +288,10 @@ async function handleAuthSubmit(event) {
         form.username.focus();
         return;
     }
-    if (password.length < MIN_PASSWORD_LENGTH) {
-        setAuthMessage(`La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.`, 'error');
+    // El mínimo solo se exige al crear la cuenta: quien se registró cuando el mínimo
+    // era 6 tiene que poder seguir entrando con su contraseña.
+    if (isSignup ? password.length < MIN_PASSWORD_LENGTH : !password) {
+        setAuthMessage(isSignup ? `La contraseña debe tener al menos ${MIN_PASSWORD_LENGTH} caracteres.` : 'Escribe tu contraseña.', 'error');
         form.password.focus();
         return;
     }

@@ -8,7 +8,7 @@ function renderShortCard(short, favorites) {
     return `
         <a class="card" href="${shortUrl(short)}">
             <span class="card__media media media--video" data-title="${escapeHTML(short.title)}">
-                <img src="${escapeHTML(short.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)">
+                <img src="${escapeHTML(short.thumbnail)}" alt="" loading="lazy" data-img-fallback>
                 ${favorites?.has(short.slug) ? `<span class="tile__fav">${FAVORITE_ICON}<span class="sr-only">En tus favoritos</span></span>` : ''}
                 <span class="card__play" aria-hidden="true">${PLAY_ICON}</span>
             </span>
@@ -26,7 +26,7 @@ function renderScriptCard(script) {
     return `
         <article class="card card--static">
             <div class="card__media media media--script" data-title="${escapeHTML(script.title)}">
-                <img src="${escapeHTML(script.poster)}" alt="Portada de ${escapeHTML(script.title)}" loading="lazy" onerror="handleImageError(this)">
+                <img src="${escapeHTML(script.poster)}" alt="Portada de ${escapeHTML(script.title)}" loading="lazy" data-img-fallback>
             </div>
             <div class="card__body">
                 <h3 class="card__title">${escapeHTML(script.title)}</h3>
@@ -57,7 +57,7 @@ function setupHero(shorts) {
         return `
             <article class="hero__slide" data-index="${index}" aria-roledescription="diapositiva" aria-label="${index + 1} de ${picks.length}: ${escapeHTML(short.title)}">
                 <div class="hero__media media" data-title="${escapeHTML(short.title)}">
-                    <img src="${escapeHTML(backdropOf(short))}" alt="" ${index ? 'loading="lazy"' : 'fetchpriority="high"'} onerror="handleImageError(this)">
+                    <img src="${escapeHTML(backdropOf(short))}" alt="" ${index ? 'loading="lazy"' : 'fetchpriority="high"'} data-img-fallback>
                 </div>
                 <div class="hero__shade" aria-hidden="true"></div>
                 <div class="hero__content">
