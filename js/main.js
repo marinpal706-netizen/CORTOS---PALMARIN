@@ -125,6 +125,10 @@ function fillSiteData() {
             el.textContent = value || el.dataset.fallback || '';
         }
     });
+    // Oculta las líneas opcionales cuyo dato está vacío.
+    document.querySelectorAll('[data-site-optional]').forEach(el => {
+        el.hidden = !SITE[el.dataset.siteOptional];
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {

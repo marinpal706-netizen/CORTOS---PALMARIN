@@ -8,12 +8,12 @@
 // - youtube / instagram / tiktok / x: enlaces completos a vuestros perfiles
 const SITE = {
     name: 'PLMRN Studio',
-    owner: '',
-    email: '',
+    owner: 'Javier Palacios Martín',
+    email: 'marinpal706@gmail.com',
     city: '',
-    youtube: '',
-    instagram: '',
-    tiktok: '',
+    youtube: 'https://www.youtube.com/@ivajerelprix',
+    instagram: 'https://www.instagram.com/javi80897',
+    tiktok: 'https://www.tiktok.com/@filmmaker.javi',
     x: '',
     legalUpdated: '15 de noviembre de 2026'
 };
