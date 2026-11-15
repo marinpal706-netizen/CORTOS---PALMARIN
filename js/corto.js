@@ -61,6 +61,105 @@ function addShortStructuredData(short, rating) {
     });
 }
 
+// ---------- Compartir ----------
+
+const SHARE_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
+
+function renderShareButton() {
+    return `
+        <div class="share">
+            <button type="button" class="btn btn--ghost share__button" data-share aria-haspopup="true" aria-expanded="false" aria-controls="share-menu">
+                ${SHARE_ICON}<span>Compartir</span>
+            </button>
+            <div class="share__menu" id="share-menu" hidden>
+                <button type="button" class="share__item" data-share-copy>Copiar enlace</button>
+                <a class="share__item" data-share-to="whatsapp" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="share__item" data-share-to="x" target="_blank" rel="noopener">X (Twitter)</a>
+                <a class="share__item" data-share-to="facebook" target="_blank" rel="noopener">Facebook</a>
+                <a class="share__item" data-share-to="telegram" target="_blank" rel="noopener">Telegram</a>
+                <a class="share__item" data-share-to="email">Correo</a>
+            </div>
+        </div>`;
+}
+
+async function copyText(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch {
+        // Navegadores antiguos o sin permiso: se copia con un campo temporal.
+        const field = document.createElement('textarea');
+        field.value = text;
+        field.setAttribute('readonly', '');
+        field.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+        document.body.appendChild(field);
+        field.select();
+        const ok = document.execCommand('copy');
+        field.remove();
+        return ok;
+    }
+}
+
+// En el móvil abre el menú de compartir del sistema; en el ordenador, un menú propio.
+function mountShare(root, short) {
+    const box = root.querySelector('.share');
+    if (!box) return;
+    const button = box.querySelector('[data-share]');
+    const menu = box.querySelector('.share__menu');
+    const url = absoluteUrl(shortUrl(short));
+    const title = `${short.title} · PLMRN`;
+    const text = `Mira «${short.title}», un cortometraje de PLMRN`;
+    const enc = encodeURIComponent;
+
+    const targets = {
+        whatsapp: `https://wa.me/?text=${enc(`${text} ${url}`)}`,
+        x: `https://x.com/intent/post?text=${enc(text)}&url=${enc(url)}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`,
+        telegram: `https://t.me/share/url?url=${enc(url)}&text=${enc(text)}`,
+        email: `mailto:?subject=${enc(title)}&body=${enc(`${text}:\n${url}`)}`
+    };
+    menu.querySelectorAll('[data-share-to]').forEach(link => { link.href = targets[link.dataset.shareTo]; });
+
+    function setOpen(open) {
+        menu.hidden = !open;
+        button.setAttribute('aria-expanded', String(open));
+        if (open) menu.querySelector('.share__item').focus();
+    }
+
+    button.addEventListener('click', async () => {
+        const touch = window.matchMedia('(pointer: coarse)').matches;
+        if (touch && navigator.share) {
+            try {
+                await navigator.share({ title, text, url });
+                return;
+            } catch (error) {
+                if (error.name === 'AbortError') return; // lo cerró el usuario
+            }
+        }
+        setOpen(menu.hidden);
+    });
+
+    menu.addEventListener('click', async (event) => {
+        const item = event.target.closest('.share__item');
+        if (!item) return;
+        if (item.matches('[data-share-copy]')) {
+            showToast(await copyText(url) ? 'Enlace copiado.' : 'No se ha podido copiar el enlace.', 'info');
+        }
+        setOpen(false);
+        button.focus();
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!menu.hidden && !box.contains(event.target)) setOpen(false);
+    });
+    box.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !menu.hidden) {
+            setOpen(false);
+            button.focus();
+        }
+    });
+}
+
 function renderVideo(title, label, badge, url) {
     const embed = toYouTubeEmbed(url);
     if (!embed) return '';
@@ -118,6 +217,8 @@ function renderShort(root, short, index, shorts) {
                 <div class="detail__actions">
                     ${short.movie ? '<a class="btn" href="#ver-corto">Ver el corto</a>' : ''}
                     ${short.trailer ? '<a class="btn btn--ghost" href="#trailer">Ver tráiler</a>' : ''}
+                    ${renderFavoriteButton(short)}
+                    ${renderShareButton()}
                 </div>
 
                 <h2 class="label">Sinopsis</h2>
@@ -177,6 +278,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const short = shorts[index];
         renderShort(root, short, index, shorts);
         mountRater(root);
+        mountFavoriteButton(root);
+        mountShare(root, short);
         mountComments(root, short.slug);
         mountCarousel(root);
 

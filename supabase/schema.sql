@@ -582,6 +582,36 @@ drop policy if exists "Administradores borran imagenes de cortos" on storage.obj
 create policy "Administradores borran imagenes de cortos" on storage.objects
     for delete to authenticated using (bucket_id = 'shorts-media' and (select public.is_admin()));
 
+-- ==========================================
+-- Favoritos
+-- ==========================================
+-- Cada usuario guarda sus cortos favoritos. Son privados: nadie más los ve.
+
+create table if not exists public.film_favorites (
+    user_id    uuid        not null default auth.uid() references auth.users (id) on delete cascade,
+    film_slug  text        not null check (film_slug ~ '^[a-z0-9-]{1,80}$'),
+    created_at timestamptz not null default now(),
+    primary key (user_id, film_slug)
+);
+
+alter table public.film_favorites enable row level security;
+
+drop policy if exists "Cada usuario ve sus favoritos" on public.film_favorites;
+create policy "Cada usuario ve sus favoritos" on public.film_favorites
+    for select to authenticated using ((select auth.uid()) = user_id);
+
+drop policy if exists "Cada usuario guarda sus favoritos" on public.film_favorites;
+create policy "Cada usuario guarda sus favoritos" on public.film_favorites
+    for insert to authenticated with check ((select auth.uid()) = user_id);
+
+drop policy if exists "Cada usuario quita sus favoritos" on public.film_favorites;
+create policy "Cada usuario quita sus favoritos" on public.film_favorites
+    for delete to authenticated using ((select auth.uid()) = user_id);
+
+revoke all on public.film_favorites from anon, authenticated;
+grant select, delete on public.film_favorites to authenticated;
+grant insert (film_slug) on public.film_favorites to authenticated;
+
 -- ---------- Limpieza opcional ----------
 -- La tabla de votos anónimos de la versión anterior ya no se usa.
 -- Si la creaste y quieres borrarla, quita los dos guiones de la línea siguiente:

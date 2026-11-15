@@ -20,7 +20,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=11">
+    <link rel="stylesheet" href="css/styles.css?v=12">
 </head>
 <body>
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -61,6 +61,10 @@
                 <label class="sr-only" for="shorts-search">Buscar cortometraje</label>
                 <input type="search" id="shorts-search" class="filters__search" placeholder="Buscar por título..." autocomplete="off">
                 <div class="filters__chips" id="shorts-genres" role="group" aria-label="Filtrar por género"></div>
+                <button type="button" class="chip chip--fav" id="shorts-favs" aria-pressed="false" hidden>
+                    <svg class="heart-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.4C1.4 7.6 3.6 4 7.1 4c2 0 3.4 1.1 4.9 2.9C13.5 5.1 14.9 4 16.9 4c3.5 0 5.7 3.6 4.4 7.1-1.8 4.8-9.3 9.4-9.3 9.4z"/></svg>
+                    Mis favoritos
+                </button>
                 <label class="filters__sort">
                     <span>Ordenar</span>
                     <select id="shorts-sort">
@@ -90,18 +94,19 @@
         &copy; <span id="year">2026</span> PLMRN. Todos los derechos reservados.
     </footer>
 
-    <!-- "?v=11" obliga al navegador a descargar la versión nueva. Cuando cambies
-         cualquier archivo de css/ o js/, sube este número (v=12, v=13...) en TODOS los .html (index, corto, sobre, admin, aviso-legal, privacidad y 404). -->
-    <script src="js/site.js?v=11"></script>
-    <script src="js/data.js?v=11"></script>
-    <script src="js/config.js?v=11"></script>
+    <!-- "?v=12" obliga al navegador a descargar la versión nueva. Cuando cambies
+         cualquier archivo de css/ o js/, sube este número (v=13, v=14...) en TODOS los .html (index, corto, sobre, admin, aviso-legal, privacidad y 404). -->
+    <script src="js/site.js?v=12"></script>
+    <script src="js/data.js?v=12"></script>
+    <script src="js/config.js?v=12"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"
         integrity="sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK" crossorigin="anonymous"></script>
-    <script src="js/main.js?v=11"></script>
-    <script src="js/auth.js?v=11"></script>
-    <script src="js/ratings.js?v=11"></script>
-    <script src="js/shorts.js?v=11"></script>
-    <script src="js/home.js?v=11"></script>
-    <script src="js/animations.js?v=11"></script>
+    <script src="js/main.js?v=12"></script>
+    <script src="js/auth.js?v=12"></script>
+    <script src="js/ratings.js?v=12"></script>
+    <script src="js/favorites.js?v=12"></script>
+    <script src="js/shorts.js?v=12"></script>
+    <script src="js/home.js?v=12"></script>
+    <script src="js/animations.js?v=12"></script>
 </body>
 </html>

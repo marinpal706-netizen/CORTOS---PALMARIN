@@ -1,11 +1,12 @@
 // Página de inicio: pinta todas las tarjetas de cortos y guiones.
 
-function renderShortCard(short) {
+function renderShortCard(short, favorites) {
     const meta = [short.genre, short.year].filter(Boolean).join(' · ');
     return `
         <a class="card" href="${shortUrl(short)}">
             <div class="media media--video" data-title="${escapeHTML(short.title)}">
                 <img src="${escapeHTML(short.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)">
+                ${favorites?.has(short.slug) ? `<span class="card__fav">${FAVORITE_ICON}<span class="sr-only">En tus favoritos</span></span>` : ''}
             </div>
             <div class="card__body">
                 <h3 class="card__title">${escapeHTML(short.title)}</h3>
@@ -130,23 +131,63 @@ function setupFilters(shorts) {
             : (a, b) => votes(b) - votes(a) || avg(b) - avg(a));
     }
 
+    // "Mis favoritos": solo aparece con la sesión iniciada.
+    const favButton = document.getElementById('shorts-favs');
+    let favorites = new Set();
+    let onlyFavorites = false;
+
+    function paintFavButton() {
+        favButton.classList.toggle('is-active', onlyFavorites);
+        favButton.setAttribute('aria-pressed', String(onlyFavorites));
+    }
+
     let applyRun = 0;
     async function apply() {
         const run = ++applyRun;
         const query = normalize(search.value.trim());
         const filtered = shorts.filter(s =>
-            (!activeGenre || genresOf(s).includes(activeGenre)) && (!query || normalize(s.title).includes(query)));
+            (!activeGenre || genresOf(s).includes(activeGenre))
+            && (!query || normalize(s.title).includes(query))
+            && (!onlyFavorites || favorites.has(s.slug)));
         const visible = await sortShorts(filtered);
         if (run !== applyRun) return; // otra búsqueda más reciente ya ha pintado
-        grid.innerHTML = visible.map(renderShortCard).join('');
+        grid.innerHTML = visible.map(s => renderShortCard(s, favorites)).join('');
         grid.removeAttribute('aria-busy');
         count.textContent = visible.length;
+        empty.textContent = onlyFavorites && !favorites.size
+            ? 'Todavía no tienes favoritos. Abre un corto y pulsa «Añadir a favoritos».'
+            : 'Ningún cortometraje coincide con tu búsqueda.';
         empty.hidden = visible.length > 0;
         fillCardRatings();
     }
 
     if (genres.length < 2) chipsBox.hidden = true;
     else renderChips();
+
+    if (FAVORITES_ENABLED && favButton) {
+        favButton.addEventListener('click', () => {
+            onlyFavorites = !onlyFavorites;
+            paintFavButton();
+            apply();
+        });
+        onAuthChange(async (user) => {
+            favButton.hidden = !user;
+            if (!user) {
+                favorites = new Set();
+                onlyFavorites = false;
+                paintFavButton();
+            } else {
+                try {
+                    favorites = await loadMyFavorites();
+                } catch (error) {
+                    console.warn('[PLMRN] No se pudieron cargar los favoritos:', error);
+                    favorites = new Set();
+                }
+                if (getCurrentUser()?.id !== user.id) return;
+            }
+            apply();
+        });
+    }
 
     chipsBox.addEventListener('click', (event) => {
         const chip = event.target.closest('[data-genre]');

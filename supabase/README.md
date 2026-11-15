@@ -93,7 +93,33 @@ corto, porque las valoraciones y los comentarios van unidos a él.
 `js/data.js` queda como **copia de seguridad**: la web solo la usa si Supabase
 no responde. Los cortos nuevos ya no hace falta ponerlos ahí.
 
-## 5. Moderar comentarios
+## 5. Captcha anti-robots (Cloudflare Turnstile)
+
+Evita que se creen cuentas falsas en masa. Casi nunca molesta: solo pide un
+clic si sospecha que es un robot. Es gratis.
+
+1. Entra en <https://dash.cloudflare.com> (crea una cuenta gratis si no tienes)
+   → **Turnstile** → **Add widget**.
+   - Nombre: `PLMRN`
+   - Hostname: `marinpal706-netizen.github.io`
+   - Modo: **Managed**
+2. Copia las dos claves que te da:
+   - **Site Key** (pública) → pégala en `js/config.js`, en `CAPTCHA_SITE_KEY`,
+     y súbelo a GitHub. Espera a que la web se actualice.
+   - **Secret Key** (privada) → **solo** en Supabase: **Authentication → Attack
+     Protection** → activa **Enable Captcha protection** → proveedor
+     **Turnstile** → pega la Secret Key → **Save**.
+
+> **El orden importa:** primero la Site Key en la web y después activar el
+> captcha en Supabase. Si lo activas antes, nadie podrá entrar ni registrarse
+> hasta que la web tenga la Site Key.
+>
+> **Nunca** pongas la Secret Key en la web ni en GitHub.
+
+Si algún día quieres quitarlo: desactívalo en Supabase y deja
+`CAPTCHA_SITE_KEY = ''`.
+
+## 6. Moderar comentarios
 
 - Cada usuario puede borrar sus propios comentarios desde la web.
 - Tú puedes borrar cualquiera en **Table Editor → film_comments**: marca la fila
@@ -114,6 +140,7 @@ no responde. Los cortos nuevos ya no hace falta ponerlos ahí.
 | `film_comments.parent_id` | Respuestas a un comentario (un solo nivel). Si se borra el comentario, se borran sus respuestas. |
 | `comment_likes` | Un "me gusta" por (comentario, usuario). Cada usuario solo ve y quita los suyos; el total público está en `film_comments.like_count`. |
 | `username_available(p_username)` | Comprueba si un nombre de usuario está libre al registrarse. |
+| `film_favorites` | Cortos favoritos de cada usuario. Privados: cada uno solo ve y cambia los suyos. |
 | `shorts` | Catálogo de cortos. Todos ven los publicados; solo los administradores crean, editan, ocultan o borran. |
 | `admins` | Cuentas con permiso de administrador. Solo se cambia desde el SQL Editor. |
 | `is_admin()` | Dice si la cuenta con la sesión iniciada es administradora (lo usa `admin.html`). |
@@ -124,6 +151,9 @@ no responde. Los cortos nuevos ya no hace falta ponerlos ahí.
 - **"No se ha podido completar el registro"** → *Confirm email* sigue activado (paso 2).
 - **"Ese nombre de usuario ya está en uso"** → otra cuenta lo tiene (sin importar mayúsculas).
 - **"Usuario o contraseña incorrectos"** → revisa la contraseña; si la olvidó, mira el paso 2.
+- **"No se ha podido comprobar que no eres un robot"** o nadie puede entrar →
+  el captcha está activado en Supabase pero la Site Key de `js/config.js` falta
+  o no coincide (paso 5).
 - **"Esta cuenta no es de administrador"** en `admin.html` → falta el paso 4
   (o el nombre de usuario del SQL no coincide).
 - **Un corto creado en el panel no sale en la web** → revisa que esté marcado

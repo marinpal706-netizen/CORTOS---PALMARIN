@@ -18,6 +18,14 @@ if (!SUPABASE_ENABLED) {
     console.info('[PLMRN] Cuentas y valoraciones desactivadas: rellena js/config.js con los datos de Supabase.');
 }
 
+// Captcha de Cloudflare Turnstile (casi siempre invisible: solo pide un clic si
+// sospecha que es un robot). Supabase lo comprueba al registrarse y al entrar.
+const CAPTCHA_ENABLED = SUPABASE_ENABLED && typeof CAPTCHA_SITE_KEY === 'string' && Boolean(CAPTCHA_SITE_KEY);
+const TURNSTILE_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+let captchaWidgetId = null;
+let captchaToken = null;
+let turnstilePromise = null;
+
 const MIN_PASSWORD_LENGTH = 6;
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,20}$/;
 const USERNAME_EMAIL_DOMAIN = 'usuarios.plmrn.invalid';
@@ -74,6 +82,9 @@ function authErrorMessage(error) {
     }
     if (code === 'signup_disabled') {
         return 'El registro de nuevas cuentas está desactivado ahora mismo.';
+    }
+    if (code === 'captcha_failed' || text.includes('captcha')) {
+        return 'No se ha podido comprobar que no eres un robot. Espera a que termine la verificación e inténtalo de nuevo.';
     }
     if (error?.name === 'AuthRetryableFetchError' || text.includes('failed to fetch')) {
         return 'No se ha podido conectar. Comprueba tu conexión e inténtalo de nuevo.';
@@ -149,6 +160,7 @@ function createAuthDialog() {
                 </span>
                 <span class="field__hint" data-signup-only hidden>Mínimo ${MIN_PASSWORD_LENGTH} caracteres. Guárdala bien: no se puede recuperar por email.</span>
             </label>
+            <div class="auth-form__captcha" hidden></div>
             <p class="field__hint auth-form__legal" data-signup-only hidden>Al crear una cuenta aceptas el <a href="aviso-legal.html" target="_blank">aviso legal</a> y la <a href="privacidad.html" target="_blank">política de privacidad</a>.</p>
             <button type="submit" class="btn auth-form__submit">Iniciar sesión</button>
             <p class="auth-form__msg" role="status" aria-live="polite"></p>
@@ -163,6 +175,55 @@ function createAuthDialog() {
     });
 
     return dialog;
+}
+
+// ---------- Captcha ----------
+
+function loadTurnstile() {
+    if (window.turnstile) return Promise.resolve(window.turnstile);
+    if (!turnstilePromise) {
+        turnstilePromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = TURNSTILE_SRC;
+            script.async = true;
+            script.onload = () => resolve(window.turnstile);
+            script.onerror = () => {
+                turnstilePromise = null;
+                script.remove();
+                reject(new Error('No se pudo cargar Turnstile'));
+            };
+            document.head.appendChild(script);
+        });
+    }
+    return turnstilePromise;
+}
+
+async function mountCaptcha() {
+    if (!CAPTCHA_ENABLED || captchaWidgetId !== null) return;
+    const box = getAuthDialog().querySelector('.auth-form__captcha');
+    box.hidden = false;
+    try {
+        const turnstile = await loadTurnstile();
+        if (captchaWidgetId !== null) return;
+        captchaWidgetId = turnstile.render(box, {
+            sitekey: CAPTCHA_SITE_KEY,
+            theme: 'dark',
+            language: 'es',
+            size: 'flexible',
+            callback: (token) => { captchaToken = token; },
+            'expired-callback': () => { captchaToken = null; },
+            'error-callback': () => { captchaToken = null; }
+        });
+    } catch (error) {
+        console.warn('[PLMRN] Error del captcha:', error);
+        box.innerHTML = '<p class="field__hint">No se ha podido cargar la verificación anti-robots. Desactiva el bloqueador de anuncios para esta web o recarga la página.</p>';
+    }
+}
+
+// Cada token sirve para un solo intento: después de usarlo se pide otro.
+function resetCaptcha() {
+    captchaToken = null;
+    if (captchaWidgetId !== null && window.turnstile) window.turnstile.reset(captchaWidgetId);
 }
 
 function getAuthDialog() {
@@ -202,6 +263,7 @@ function openAuthDialog(mode = 'login', reason = '') {
 
     if (!dialog.open) dialog.showModal();
     dialog.querySelector('input[name="username"]').focus();
+    mountCaptcha();
 }
 
 async function handleAuthSubmit(event) {
@@ -228,6 +290,12 @@ async function handleAuthSubmit(event) {
         return;
     }
 
+    if (CAPTCHA_ENABLED && !captchaToken) {
+        setAuthMessage('Espera un momento a que se complete la verificación anti-robots (o márcala si te lo pide).', 'error');
+        mountCaptcha();
+        return;
+    }
+
     const originalLabel = submit.textContent;
     submit.disabled = true;
     submit.textContent = isSignup ? 'Creando cuenta…' : 'Entrando…';
@@ -246,7 +314,7 @@ async function handleAuthSubmit(event) {
             const { data, error } = await sb.auth.signUp({
                 email: loginToEmail(login),
                 password,
-                options: { data: { username: login } }
+                options: { data: { username: login }, captchaToken: captchaToken || undefined }
             });
             if (error) throw error;
 
@@ -261,7 +329,11 @@ async function handleAuthSubmit(event) {
             getAuthDialog().close();
             showToast(`¡Cuenta creada! Bienvenido/a, ${login}.`, 'success');
         } else {
-            const { error } = await sb.auth.signInWithPassword({ email: loginToEmail(login), password });
+            const { error } = await sb.auth.signInWithPassword({
+                email: loginToEmail(login),
+                password,
+                options: { captchaToken: captchaToken || undefined }
+            });
             if (error) throw error;
             form.reset();
             getAuthDialog().close();
@@ -273,6 +345,7 @@ async function handleAuthSubmit(event) {
     } finally {
         submit.disabled = false;
         if (submit.textContent.endsWith('…')) submit.textContent = originalLabel;
+        if (CAPTCHA_ENABLED) resetCaptcha();
     }
 }
 

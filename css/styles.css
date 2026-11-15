@@ -386,7 +386,7 @@ a.card:hover .media img { filter: brightness(1); }
     letter-spacing: -0.01em;
 }
 .detail__meta { margin-top: 12px; font-size: 0.875rem; color: var(--muted); }
-.detail__actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 8px; }
+.detail__actions { position: relative; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 8px; }
 .detail__synopsis { max-width: 60ch; font-size: 1.02rem; line-height: 1.7; color: #d4d4d6; }
 .detail__info .laurels { width: 100%; }
 
@@ -1178,3 +1178,43 @@ body.is-leaving { opacity: 0; }
     .laurel-row .field:first-child { grid-column: 1 / -1; }
     .btn--danger { margin-left: 0; }
 }
+/* ---------- Favoritos ---------- */
+
+.heart-icon { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; flex: none; }
+.fav-button, .share__button { display: inline-flex; align-items: center; gap: 8px; }
+.fav-button.is-active { color: var(--accent); border-color: rgba(229, 72, 77, 0.5); }
+.fav-button.is-active .heart-icon { fill: currentColor; }
+.fav-button.is-popping .heart-icon { animation: likePop 0.45s var(--ease); }
+.card__fav {
+    position: absolute; top: 10px; right: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(11, 11, 12, 0.72); color: var(--accent);
+    backdrop-filter: blur(4px);
+}
+.card__fav .heart-icon { width: 15px; height: 15px; fill: currentColor; }
+.chip--fav { display: inline-flex; align-items: center; gap: 6px; }
+.chip--fav.is-active .heart-icon { fill: currentColor; }
+
+/* ---------- Compartir ---------- */
+
+.share { position: relative; }
+.share__menu {
+    position: absolute; top: calc(100% + 8px); left: 0; z-index: 30;
+    min-width: 200px; padding: 6px;
+    display: flex; flex-direction: column;
+    background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: var(--radius-sm);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    animation: fadeIn 0.18s ease both;
+}
+.share__item {
+    display: block; width: 100%; padding: 9px 12px;
+    border: 0; border-radius: 4px; background: none; color: var(--text);
+    font-size: 0.875rem; text-align: left; cursor: pointer;
+}
+.share__item:hover, .share__item:focus-visible { background: var(--surface); outline: none; }
+
+/* ---------- Captcha ---------- */
+
+.auth-form__captcha { min-height: 65px; }
+.auth-form__captcha iframe { max-width: 100%; }
