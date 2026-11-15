@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página no encontrada · PLMRN</title>
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#07090e">
+    <!-- GitHub Pages sirve esta página en cualquier ruta que no exista (por ejemplo
+         /CORTOS---PALMARIN/a/b/c), así que fijamos la base para que css/, js/ e img/
+         se carguen siempre desde la raíz de la web. -->
+    <script>
+        (function () {
+            var repo = '/CORTOS---PALMARIN/';
+            var base = location.pathname.indexOf(repo) === 0 ? repo : '/';
+            document.write('<base href="' + base + '">');
+        })();
+    </script>
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="site-header">
+        <div class="container">
+            <a class="brand" href="index.html" aria-label="PLMRN Studio, inicio">
+                <span class="brand__logo">PLMRN</span>
+                <span class="brand__badge">Studio</span>
+            </a>
+            <nav class="nav" aria-label="Secciones">
+                <a href="index.html#cortometrajes">Cortometrajes</a>
+                <a href="index.html#guiones">Guiones</a>
+                <a href="sobre.html">Sobre nosotros</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="contenido" class="container" tabindex="-1">
+        <div class="empty">
+            <span class="not-found__code" aria-hidden="true">404</span>
+            <h1>Esta escena no existe</h1>
+            <p>La página que buscas se ha perdido en el montaje o ha cambiado de dirección.</p>
+            <a class="btn" href="index.html">Volver al catálogo</a>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        &copy; 2026 PLMRN. Todos los derechos reservados.
+    </footer>
+
+    <script src="js/site.js?v=7"></script>
+    <script src="js/main.js?v=7"></script>
+</body>
+</html>

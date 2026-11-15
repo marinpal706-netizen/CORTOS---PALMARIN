@@ -149,6 +149,7 @@ function createAuthDialog() {
                 </span>
                 <span class="field__hint" data-signup-only hidden>Mínimo ${MIN_PASSWORD_LENGTH} caracteres. Guárdala bien: no se puede recuperar por email.</span>
             </label>
+            <p class="field__hint auth-form__legal" data-signup-only hidden>Al crear una cuenta aceptas el <a href="aviso-legal.html" target="_blank">aviso legal</a> y la <a href="privacidad.html" target="_blank">política de privacidad</a>.</p>
             <button type="submit" class="btn auth-form__submit">Iniciar sesión</button>
             <p class="auth-form__msg" role="status" aria-live="polite"></p>
         </form>`;

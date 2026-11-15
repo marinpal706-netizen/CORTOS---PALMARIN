@@ -78,7 +78,12 @@ function setupFilters() {
     const count = document.getElementById('shorts-count');
     const normalize = text => (text || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-    const genres = [...new Set(SHORTS.map(s => s.genre).filter(Boolean))];
+    // "Thriller psicológico / Suspense." cuenta como dos géneros: Thriller psicológico y Suspense.
+    const genresOf = short => (short.genre || '')
+        .split('/')
+        .map(g => g.trim().replace(/\.+$/, ''))
+        .filter(Boolean);
+    const genres = [...new Set(SHORTS.flatMap(genresOf))];
     let activeGenre = '';
 
     function renderChips() {
@@ -90,7 +95,7 @@ function setupFilters() {
     function apply() {
         const query = normalize(search.value.trim());
         const visible = SHORTS.filter(s =>
-            (!activeGenre || s.genre === activeGenre) && (!query || normalize(s.title).includes(query)));
+            (!activeGenre || genresOf(s).includes(activeGenre)) &&(!query || normalize(s.title).includes(query)));
         grid.innerHTML = visible.map(renderShortCard).join('');
         count.textContent = visible.length;
         empty.hidden = visible.length > 0;

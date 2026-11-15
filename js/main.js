@@ -62,9 +62,74 @@ function showToast(message, type = 'info') {
     }, 4500);
 }
 
+// Pie de página común a todas las páginas. Los enlaces sociales salen de js/site.js.
+function renderFooter() {
+    const footer = document.querySelector('.site-footer');
+    if (!footer || typeof SITE === 'undefined') return;
+
+    const social = [
+        ['YouTube', SITE.youtube],
+        ['Instagram', SITE.instagram],
+        ['TikTok', SITE.tiktok],
+        ['X', SITE.x]
+    ].filter(([, url]) => url);
+    const link = (href, text) => `<li><a href="${escapeHTML(href)}">${escapeHTML(text)}</a></li>`;
+    const external = (href, text) => `<li><a href="${escapeHTML(href)}" target="_blank" rel="noopener">${escapeHTML(text)}</a></li>`;
+
+    footer.innerHTML = `
+        <div class="container footer">
+            <div class="footer__brand">
+                <a class="brand" href="index.html" aria-label="${escapeHTML(SITE.name)}, inicio">
+                    <span class="brand__logo">PLMRN</span>
+                    <span class="brand__badge">Studio</span>
+                </a>
+                <p>Cortometrajes de terror y suspense hechos con pocos medios y muchas ganas.</p>
+            </div>
+            <nav class="footer__col" aria-label="Explorar">
+                <h2 class="footer__title">Explorar</h2>
+                <ul>
+                    ${link('index.html#cortometrajes', 'Cortometrajes')}
+                    ${link('index.html#guiones', 'Guiones')}
+                    ${link('sobre.html', 'Sobre nosotros')}
+                </ul>
+            </nav>
+            <nav class="footer__col" aria-label="Contacto y redes">
+                <h2 class="footer__title">Contacto</h2>
+                <ul>
+                    ${SITE.email ? link(`mailto:${SITE.email}`, SITE.email) : link('sobre.html#contacto', 'Escríbenos')}
+                    ${social.map(([name, url]) => external(url, name)).join('')}
+                </ul>
+            </nav>
+            <nav class="footer__col" aria-label="Legal">
+                <h2 class="footer__title">Legal</h2>
+                <ul>
+                    ${link('aviso-legal.html', 'Aviso legal')}
+                    ${link('privacidad.html', 'Privacidad')}
+                </ul>
+            </nav>
+        </div>
+        <div class="container footer__bottom">
+            <span>&copy; ${new Date().getFullYear()} PLMRN. Todos los derechos reservados.</span>
+            <a href="#contenido" class="footer__top">Volver arriba</a>
+        </div>`;
+}
+
+// Rellena los huecos <span data-site="email"> de las páginas con los datos de js/site.js.
+function fillSiteData() {
+    if (typeof SITE === 'undefined') return;
+    document.querySelectorAll('[data-site]').forEach(el => {
+        const value = SITE[el.dataset.site];
+        if (el.dataset.site === 'email' && value) {
+            el.innerHTML = `<a href="mailto:${escapeHTML(value)}">${escapeHTML(value)}</a>`;
+        } else {
+            el.textContent = value || el.dataset.fallback || '';
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    const year = document.getElementById('year');
-    if (year) year.textContent = new Date().getFullYear();
+    renderFooter();
+    fillSiteData();
     setupBackToTop();
 });
 

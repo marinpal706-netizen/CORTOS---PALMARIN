@@ -808,11 +808,81 @@ a.card:hover .media img { filter: brightness(1); }
 /* ---------- Pie ---------- */
 
 .site-footer {
-    padding: 32px 24px;
+    margin-top: 40px;
+    padding: 56px 0 28px;
     border-top: 1px solid var(--line);
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--dim);
-    text-align: center;
+}
+.footer {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(3, 1fr);
+    gap: 40px;
+}
+.footer__brand p { margin-top: 14px; max-width: 300px; color: var(--muted); line-height: 1.6; }
+.footer__title {
+    margin-bottom: 14px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+}
+.footer__col ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.footer__col a { color: var(--muted); transition: color 0.2s ease; overflow-wrap: anywhere; }
+.footer__col a:hover { color: var(--text); }
+.footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+}
+.footer__top { color: var(--dim); }
+.footer__top:hover { color: var(--text); }
+
+/* ---------- Páginas de texto (legal, sobre nosotros) ---------- */
+
+.prose-page { max-width: 760px; padding-top: 48px; padding-bottom: 40px; }
+.prose-page h1 {
+    margin-bottom: 12px;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 6vw, 3.4rem);
+    line-height: 1.05;
+}
+.prose-page .lead { color: var(--muted); font-size: 1.05rem; }
+.prose-page .updated { margin-top: 8px; color: var(--dim); font-size: 0.8rem; }
+.prose-page h2 {
+    margin: 44px 0 12px;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: 1.6rem;
+}
+.prose-page p, .prose-page li { color: var(--muted); line-height: 1.75; }
+.prose-page p + p { margin-top: 12px; }
+.prose-page ul { margin: 12px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+.prose-page strong { color: var(--text); font-weight: 500; }
+.prose-page a:not(.btn) { color: var(--text); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
+.prose-page a:not(.btn):hover { text-decoration-color: var(--text); }
+.prose-page [data-site]:empty::before { content: '—'; }
+
+.facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 40px; background: var(--line); border-block: 1px solid var(--line); }
+.facts div { padding: 22px 4px; background: var(--bg); }
+.facts strong { display: block; font-family: var(--font-serif); font-weight: 400; font-size: 2.2rem; line-height: 1; color: var(--text); }
+.facts span { font-size: 0.8rem; color: var(--dim); }
+
+.contact-card { margin-top: 20px; padding: 24px 0; border-block: 1px solid var(--line); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.contact-card p { margin: 0; }
+
+.not-found__code {
+    font-family: var(--font-serif);
+    font-size: clamp(6rem, 22vw, 11rem);
+    line-height: 0.9;
+    color: var(--text);
+    opacity: 0.12;
 }
 
 /* ==========================================
@@ -890,6 +960,8 @@ body.is-leaving { opacity: 0; }
     .detail { grid-template-columns: 1fr; gap: 32px; }
     .detail .media--poster { width: 100%; max-width: 300px; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 40px 20px; }
+    .footer { grid-template-columns: repeat(3, 1fr); }
+    .footer__brand { grid-column: 1 / -1; }
 }
 
 @media (max-width: 600px) {
@@ -925,6 +997,10 @@ body.is-leaving { opacity: 0; }
     .more { margin-top: 56px; }
     .filters__search { flex-basis: 100%; }
     .to-top { right: 14px; bottom: 14px; }
+    .footer { grid-template-columns: 1fr 1fr; gap: 32px 20px; }
+    .footer__bottom { flex-direction: column; gap: 8px; }
+    .prose-page { padding-top: 28px; }
+    .facts { grid-template-columns: 1fr; }
     .auth-dialog { padding: 32px 22px 24px; }
 }
 
@@ -938,3 +1014,6 @@ body.is-leaving { opacity: 0; }
     .backdrop { opacity: 0.22; }
     ::view-transition-old(root), ::view-transition-new(root) { animation: none !important; }
 }
+
+.auth-form__legal a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.auth-form__legal a:hover { color: var(--text); }

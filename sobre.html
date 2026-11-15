@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre nosotros · PLMRN</title>
+    <meta name="description" content="Quiénes somos en PLMRN Studio y cómo contactar con nosotros.">
+    <meta name="theme-color" content="#07090e">
+    <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PLMRN Studio">
+    <meta property="og:title" content="Sobre nosotros · PLMRN">
+    <meta property="og:description" content="Quiénes somos en PLMRN Studio y cómo contactar con nosotros.">
+    <meta property="og:image" content="https://marinpal706-netizen.github.io/CORTOS---PALMARIN/img/OBSESSIONH.png">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <header class="site-header">
+        <div class="container">
+            <a class="brand" href="index.html" aria-label="PLMRN Studio, inicio">
+                <span class="brand__logo">PLMRN</span>
+                <span class="brand__badge">Studio</span>
+            </a>
+            <nav class="nav" aria-label="Secciones">
+                <a href="index.html#cortometrajes">Cortometrajes</a>
+                <a href="index.html#guiones">Guiones</a>
+                <a href="sobre.html" class="is-active" aria-current="page">Sobre nosotros</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="contenido" class="container prose-page" tabindex="-1">
+        <h1>Sobre nosotros</h1>
+        <p class="lead">PLMRN Studio es un pequeño estudio independiente que escribe, rueda y monta cortometrajes de terror y suspense.</p>
+
+        <div class="facts" aria-label="PLMRN en cifras">
+            <div><strong data-stat="shorts">0</strong><span>cortometrajes</span></div>
+            <div><strong data-stat="laurels">0</strong><span>selecciones y premios</span></div>
+            <div><strong data-stat="scripts">0</strong><span>guiones</span></div>
+        </div>
+
+        <h2>Qué hacemos</h2>
+        <p>Contamos historias cortas que se quedan contigo después de verlas: paranoia, obsesión y miedo a lo cotidiano. Cada corto se publica completo y gratis en nuestro canal de YouTube, y muchos han pasado por festivales.</p>
+        <p>En esta web puedes ver todos los cortos, leer su ficha, valorarlos y dejarnos tu opinión en los comentarios.</p>
+
+        <h2 id="contacto">Contacto</h2>
+        <p>¿Quieres proponernos una colaboración, programar uno de nuestros cortos en un festival o simplemente decirnos algo? Escríbenos.</p>
+        <div class="contact-card">
+            <p><strong>Correo</strong><br><span data-site="email" data-fallback="Próximamente"></span></p>
+            <a class="btn" id="contact-button" href="index.html#cortometrajes">Ver los cortos</a>
+        </div>
+        <p id="contact-social" hidden></p>
+    </main>
+
+    <footer class="site-footer">
+        &copy; 2026 PLMRN. Todos los derechos reservados.
+    </footer>
+
+    <script src="js/site.js?v=7"></script>
+    <script src="js/data.js?v=7"></script>
+    <script src="js/main.js?v=7"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stats = {
+                shorts: SHORTS.length,
+                laurels: [...SHORTS, ...SCRIPTS].reduce((sum, item) => sum + (item.laurels?.length || 0), 0),
+                scripts: SCRIPTS.length
+            };
+            document.querySelectorAll('[data-stat]').forEach(el => { el.textContent = stats[el.dataset.stat]; });
+
+            // Si hay correo, el botón principal pasa a ser "Escribir un correo".
+            if (SITE.email) {
+                const button = document.getElementById('contact-button');
+                button.href = `mailto:${SITE.email}`;
+                button.textContent = 'Escribir un correo';
+            }
+
+            const social = [['YouTube', SITE.youtube], ['Instagram', SITE.instagram], ['TikTok', SITE.tiktok], ['X', SITE.x]]
+                .filter(([, url]) => url);
+            if (social.length) {
+                const box = document.getElementById('contact-social');
+                box.innerHTML = 'También nos encontrarás en ' + social
+                    .map(([name, url]) => `<a href="${escapeHTML(url)}" target="_blank" rel="noopener">${name}</a>`)
+                    .join(', ') + '.';
+                box.hidden = false;
+            }
+        });
+    </script>
+</body>
+</html>
