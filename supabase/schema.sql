@@ -408,6 +408,179 @@ update public.film_comments c
    set like_count = (select count(*) from public.comment_likes l where l.comment_id = c.id)
  where like_count <> (select count(*) from public.comment_likes l where l.comment_id = c.id);
 
+-- ==========================================
+-- Catálogo de cortos + panel de administración (admin.html)
+-- ==========================================
+-- Los cortos se guardan aquí en lugar de en js/data.js. data.js se queda como
+-- copia de seguridad: la web la usa si Supabase no responde.
+-- · Cualquiera puede LEER los cortos publicados.
+-- · Solo los administradores (tabla admins) pueden crear, editar, ocultar o borrar.
+
+-- Administradores. Nadie puede leer ni tocar esta tabla desde la web:
+-- se añaden a mano desde el SQL Editor (ver supabase/README.md).
+create table if not exists public.admins (
+    user_id    uuid        primary key references auth.users (id) on delete cascade,
+    created_at timestamptz not null default now()
+);
+
+alter table public.admins enable row level security;
+revoke all on public.admins from anon, authenticated;
+
+-- ¿El usuario con la sesión actual es administrador?
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+    select exists (select 1 from public.admins where user_id = (select auth.uid()));
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
+
+create table if not exists public.shorts (
+    slug       text        primary key check (slug ~ '^[a-z0-9-]{1,80}$'),
+    title      text        not null check (char_length(btrim(title)) between 1 and 120),
+    year       smallint    check (year between 1900 and 2100),
+    genre      text        not null default '' check (char_length(genre) <= 120),
+    -- Imágenes: ruta de la carpeta img/ o enlace https (p. ej. Supabase Storage).
+    thumbnail  text        not null default '' check (thumbnail ~ '^(|img/[A-Za-z0-9._/-]{1,200}|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
+    poster     text        not null default '' check (poster    ~ '^(|img/[A-Za-z0-9._/-]{1,200}|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
+    -- Vídeos: enlaces de YouTube (o vacío).
+    trailer    text        not null default '' check (trailer   ~ '^(|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
+    movie      text        not null default '' check (movie     ~ '^(|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
+    synopsis   text        not null default '' check (char_length(synopsis) <= 2000),
+    -- Festivales: [{ "type": "Finalista", "name": "HorrorHound Festival" }, ...]
+    laurels    jsonb       not null default '[]' check (jsonb_typeof(laurels) = 'array' and jsonb_array_length(laurels) <= 30),
+    -- Orden en la web: el número más bajo sale primero.
+    position   integer     not null default 0,
+    published  boolean     not null default true,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
+);
+
+create index if not exists shorts_position_idx on public.shorts (position, created_at desc);
+
+alter table public.shorts enable row level security;
+
+drop policy if exists "Cortos publicados visibles para todos" on public.shorts;
+create policy "Cortos publicados visibles para todos" on public.shorts
+    for select using (published or (select public.is_admin()));
+
+drop policy if exists "Administradores crean cortos" on public.shorts;
+create policy "Administradores crean cortos" on public.shorts
+    for insert to authenticated with check ((select public.is_admin()));
+
+drop policy if exists "Administradores editan cortos" on public.shorts;
+create policy "Administradores editan cortos" on public.shorts
+    for update to authenticated using ((select public.is_admin())) with check ((select public.is_admin()));
+
+drop policy if exists "Administradores borran cortos" on public.shorts;
+create policy "Administradores borran cortos" on public.shorts
+    for delete to authenticated using ((select public.is_admin()));
+
+revoke all on public.shorts from anon, authenticated;
+grant select on public.shorts to anon, authenticated;
+grant insert (slug, title, year, genre, thumbnail, poster, trailer, movie, synopsis, laurels, position, published)
+    on public.shorts to authenticated;
+-- El slug no se puede cambiar: las valoraciones y comentarios van unidos a él.
+grant update (title, year, genre, thumbnail, poster, trailer, movie, synopsis, laurels, position, published)
+    on public.shorts to authenticated;
+grant delete on public.shorts to authenticated;
+
+-- Limpia los textos, comprueba los festivales y guarda la fecha de modificación.
+create or replace function public.prepare_short()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+    new.title    := btrim(new.title);
+    new.genre    := btrim(new.genre);
+    new.synopsis := btrim(new.synopsis);
+    if exists (
+        select 1 from jsonb_array_elements(new.laurels) l
+         where jsonb_typeof(l) <> 'object'
+            or coalesce(jsonb_typeof(l -> 'name'), '') <> 'string'
+            or char_length(btrim(l ->> 'name')) not between 1 and 120
+            or (l ? 'type' and (jsonb_typeof(l -> 'type') <> 'string' or char_length(l ->> 'type') > 60))
+    ) then
+        raise exception 'invalid_laurels' using errcode = '22023';
+    end if;
+    new.updated_at := now();
+    return new;
+end;
+$$;
+
+drop trigger if exists shorts_prepare on public.shorts;
+create trigger shorts_prepare
+    before insert or update on public.shorts
+    for each row execute function public.prepare_short();
+
+revoke all on function public.prepare_short() from public, anon, authenticated;
+
+-- Cortos que ya estaban en js/data.js. Solo se añaden si no existen todavía,
+-- así que volver a ejecutar el archivo no deshace lo que cambies en el panel.
+insert into public.shorts (slug, title, year, genre, thumbnail, poster, trailer, movie, synopsis, laurels, position) values
+    ('inesperado', 'INESPERADO', 2026, 'Thriller psicológico / Suspense', 'img/ines.png', 'img/poster.png', '', 'https://youtu.be/9qFP3xbwsK4',
+     'Un joven aislado con sus auriculares en casa experimenta una creciente sensación de paranoia y claustrofobia, hasta que unos golpes secos y repentinos en la puerta rompen el silencio y desatan una pesadilla de la que es imposible escapar.',
+     '[]', 10),
+    ('subidon', 'SUBIDÓN', 2026, 'Suspense.', 'img/subidon.png', 'img/subidonposter.png', '', 'https://youtu.be/ulkTQpwLgxQ',
+     'Un joven se aísla con la música de sus cascos, buscando escapar de su propia mente en una espiral de ritmo y paranoia.',
+     '[]', 20),
+    ('el-exito-te-mata', 'EL EXITÓ TE MATA', 2026, 'Thriller psicológico.', 'img/exitomata.png', 'img/elexitoposter.png', '', 'https://youtu.be/w6OSmCYD-lc',
+     'La ambición desmedida y la obsesión por la fama ciegan por completo a un aspirante a estrella, que fantasea constantemente con ser el centro de atención a cualquier precio. Sin embargo, ignora que la línea entre el éxito y la destrucción personal es muy fina, y la realidad acabará por golpearle de la forma más inesperada.',
+     '[]', 30),
+    ('ese-nombre-me-suena', 'ESE NOMBRE ME SUENA', 2026, 'Thriller psicológico / Suspense.', 'img/bate.png', 'img/bateposter.png', 'https://youtu.be/0FjE0RmSkrs', 'https://youtu.be/Yc8U1BxB_e4',
+     'Dos amigos hablan por teléfono y uno de ellos, completamente borracho, suelta una confidencia sobre su pareja. Lo que empieza como una charla entre colegas deriva rápidamente en una espiral de tensión, paranoia y un final fatal.',
+     '[]', 40),
+    ('obsession-2', 'Obsession 2', 2026, 'Terror psicológico', 'img/OBSESSIONH.png', 'img/obsession-poster.jpg', 'https://youtu.be/jwrhwtHvAKQ', '',
+     'Vuelve el terror psicológico con la secuela de Obsession. Luis solo quería que Carmen no se fuera, pero al pedir un deseo prohibido, el amor se ha convertido en una pesadilla sangrienta de la que nadie sale vivo.',
+     '[]', 50),
+    ('looper', 'LOOPER', null, 'Suspense', 'img/LOOPERH.webp', 'img/looper-poster.jpg', 'https://youtu.be/Oq3WvwN5hwg', 'https://youtu.be/aYMR9QImSBM',
+     'Atrapado en un bucle de tensión y silencio, un hombre con la boca sellada y las manos manchadas de sangre se enfrenta a una presencia enmascarada en una azotea desolada.',
+     '[]', 60),
+    ('sonoro', 'SONORO parte 1 y parte 2', null, 'Terror', 'img/SONOROH.png', 'img/sonoro-poster.jpg', '', 'https://youtu.be/i885vW4GWgA',
+     'Unos auriculares y un cable aparentemente inofensivos se convierten en la peor pesadilla de un joven en su propia casa.',
+     '[{"type": "Finalista", "name": "HorrorHound Festival"}, {"type": "Seleccionado", "name": "Almamoura FilmFestival"}]', 70),
+    ('below', 'BELOW', null, 'Terror', 'img/BELOWH.png', 'img/below-poster.jpg', 'https://youtu.be/fnF0reh733Y', 'https://youtu.be/Bx_djthAw_s',
+     '¿Qué se esconde justo debajo de tus pies cuando crees que estás a salvo en casa? Una atmósfera claustrofóbica, golpes secos en la oscuridad y una tensión insoportable.',
+     '[]', 80),
+    ('tengo-algo-que-decirte', 'TENGO ALGO QUE DECIRTE', null, '', 'img/TENGO.png', 'img/obs.png', 'https://youtu.be/Et5hKaKB6Fo', 'https://youtu.be/Pe1yrnFOLB4',
+     'Una tensa llamada nocturna entre una pareja por un supuesto control excesivo da un giro radicalmente aterrorizante cuando ella afirma estar esperándole en la sala de un cine que a medianoche debería estar cerrado, convirtiendo una discusión rutinaria en una pesadilla claustrofóbica.',
+     '[]', 90)
+on conflict (slug) do nothing;
+
+-- ---------- Imágenes de los cortos (Supabase Storage) ----------
+-- Carpeta pública "shorts-media": cualquiera puede VER las imágenes,
+-- solo los administradores pueden subirlas, cambiarlas o borrarlas.
+-- Máximo 5 MB por imagen; solo PNG, JPG, WEBP o AVIF.
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('shorts-media', 'shorts-media', true, 5242880, array['image/png', 'image/jpeg', 'image/webp', 'image/avif'])
+on conflict (id) do update
+    set public             = excluded.public,
+        file_size_limit    = excluded.file_size_limit,
+        allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Administradores ven imagenes de cortos" on storage.objects;
+create policy "Administradores ven imagenes de cortos" on storage.objects
+    for select to authenticated using (bucket_id = 'shorts-media' and (select public.is_admin()));
+
+drop policy if exists "Administradores suben imagenes de cortos" on storage.objects;
+create policy "Administradores suben imagenes de cortos" on storage.objects
+    for insert to authenticated with check (bucket_id = 'shorts-media' and (select public.is_admin()));
+
+drop policy if exists "Administradores cambian imagenes de cortos" on storage.objects;
+create policy "Administradores cambian imagenes de cortos" on storage.objects
+    for update to authenticated using (bucket_id = 'shorts-media' and (select public.is_admin()));
+
+drop policy if exists "Administradores borran imagenes de cortos" on storage.objects;
+create policy "Administradores borran imagenes de cortos" on storage.objects
+    for delete to authenticated using (bucket_id = 'shorts-media' and (select public.is_admin()));
+
 -- ---------- Limpieza opcional ----------
 -- La tabla de votos anónimos de la versión anterior ya no se usa.
 -- Si la creaste y quieres borrarla, quita los dos guiones de la línea siguiente:

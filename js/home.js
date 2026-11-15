@@ -69,8 +69,24 @@ function setupScrollSpy() {
     update();
 }
 
-// Filtro por título y por género. Los géneros salen de data.js automáticamente.
-function setupFilters() {
+// Tarjetas grises mientras llegan los cortos (evita que la página salte).
+function renderShortsLoading(grid) {
+    grid.setAttribute('aria-busy', 'true');
+    grid.innerHTML = Array.from({ length: 3 }, () => `
+        <div class="card card--skeleton" aria-hidden="true">
+            <div class="media media--video"></div>
+            <div class="card__body">
+                <span class="skeleton-line skeleton-line--title"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line skeleton-line--short"></span>
+            </div>
+        </div>`).join('');
+    document.getElementById('shorts-count').textContent = '…';
+}
+
+// Filtro por título y por género. Los géneros salen de los propios cortos.
+// Devuelve una promesa que termina cuando se han pintado las tarjetas.
+function setupFilters(shorts) {
     const search = document.getElementById('shorts-search');
     const chipsBox = document.getElementById('shorts-genres');
     const grid = document.getElementById('shorts-grid');
@@ -86,7 +102,7 @@ function setupFilters() {
         .split('/')
         .map(g => g.trim().replace(/\.+$/, ''))
         .filter(Boolean);
-    const genres = [...new Set(SHORTS.flatMap(genresOf))];
+    const genres = [...new Set(shorts.flatMap(genresOf))];
     let activeGenre = '';
 
     function renderChips() {
@@ -95,7 +111,7 @@ function setupFilters() {
             <button type="button" class="chip${genre === activeGenre ? ' is-active' : ''}" data-genre="${escapeHTML(genre)}" aria-pressed="${genre === activeGenre}">${genre ? escapeHTML(genre) : 'Todos'}</button>`).join('');
     }
 
-    // "Más recientes" respeta el orden de data.js (los cortos nuevos van arriba).
+    // "Más recientes" respeta el orden del panel (los cortos nuevos van arriba).
     const byTitle = (a, b) => a.title.localeCompare(b.title, 'es', { sensitivity: 'base' });
     async function sortShorts(list) {
         if (sort.value === 'title') return list.sort(byTitle);
@@ -118,11 +134,12 @@ function setupFilters() {
     async function apply() {
         const run = ++applyRun;
         const query = normalize(search.value.trim());
-        const filtered = SHORTS.filter(s =>
+        const filtered = shorts.filter(s =>
             (!activeGenre || genresOf(s).includes(activeGenre)) && (!query || normalize(s.title).includes(query)));
         const visible = await sortShorts(filtered);
         if (run !== applyRun) return; // otra búsqueda más reciente ya ha pintado
         grid.innerHTML = visible.map(renderShortCard).join('');
+        grid.removeAttribute('aria-busy');
         count.textContent = visible.length;
         empty.hidden = visible.length > 0;
         fillCardRatings();
@@ -140,11 +157,11 @@ function setupFilters() {
     });
     search.addEventListener('input', apply);
     sort.addEventListener('change', apply);
-    apply();
+    return apply();
 }
 
 // Datos para Google: el estudio, la web y la lista de cortos.
-function addHomeStructuredData() {
+function addHomeStructuredData(shorts) {
     const organization = organizationData();
     setStructuredData('ld-home', {
         '@context': 'https://schema.org',
@@ -160,7 +177,7 @@ function addHomeStructuredData() {
             {
                 '@type': 'ItemList',
                 name: 'Cortometrajes',
-                itemListElement: SHORTS.map((short, index) => ({
+                itemListElement: shorts.map((short, index) => ({
                     '@type': 'ListItem',
                     position: index + 1,
                     url: absoluteUrl(shortUrl(short)),
@@ -171,10 +188,7 @@ function addHomeStructuredData() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    setupFilters();
-    addHomeStructuredData();
-
+document.addEventListener('DOMContentLoaded', async () => {
     const scriptsGrid = document.getElementById('scripts-grid');
     if (SCRIPTS.length) {
         scriptsGrid.innerHTML = SCRIPTS.map(renderScriptCard).join('');
@@ -182,5 +196,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('guiones').hidden = true;
     }
 
+    const grid = document.getElementById('shorts-grid');
+    renderShortsLoading(grid);
+    const shorts = await loadShorts();
+    await setupFilters(shorts);
+    addHomeStructuredData(shorts);
     setupScrollSpy();
+    if (typeof animateContent === 'function') animateContent(grid);
 });

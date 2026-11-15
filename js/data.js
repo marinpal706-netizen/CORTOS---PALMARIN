@@ -1,13 +1,17 @@
 // ==========================================
-// TUS CORTOMETRAJES
+// TUS CORTOMETRAJES (copia de seguridad)
 // ==========================================
+// ¡OJO! Los cortos ya NO se añaden aquí: se gestionan desde el panel
+// admin.html y se guardan en Supabase. Esta lista solo se usa si Supabase
+// no responde, para que la web nunca se quede vacía. Si quieres, de vez en
+// cuando puedes copiar aquí los cortos nuevos para tener la copia al día.
+//
 // Cada corto tiene su propia página: corto.html?id=<slug>
 // - slug:      identificador único para la URL (minúsculas, sin espacios)
 // - thumbnail: imagen HORIZONTAL para la tarjeta del inicio
 // - poster:    póster VERTICAL para la ficha (si no hay, se usa el thumbnail)
 // - trailer / movie: enlaces de YouTube (déjalos vacíos "" si no hay)
 //
-// PARA AÑADIR OTRO CORTO, copia un bloque desde '{' hasta '},' y cambia el slug.
 const SHORTS = [
         {
         slug: "inesperado",

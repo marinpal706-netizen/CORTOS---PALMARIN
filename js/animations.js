@@ -8,8 +8,8 @@ const REVEAL_SELECTOR = '.section-head, .card, .panel:not(.detail), .pager a, .s
 const STAGGER = 0.08;   // segundos entre elementos hermanos
 const MAX_DELAY = 0.4;
 
-function setupReveal() {
-    const elements = document.querySelectorAll(REVEAL_SELECTOR);
+function setupReveal(root = document) {
+    const elements = root.querySelectorAll(REVEAL_SELECTOR);
     if (prefersReducedMotion || !('IntersectionObserver' in window)) return;
 
     const observer = new IntersectionObserver((entries) => {
@@ -41,8 +41,8 @@ function setupReveal() {
 }
 
 // Las imágenes aparecen con un fundido cuando terminan de cargar.
-function setupImageFade() {
-    document.querySelectorAll('.media img').forEach(img => {
+function setupImageFade(root = document) {
+    root.querySelectorAll('.media img').forEach(img => {
         if (img.complete) return;
         img.classList.add('is-loading');
         const show = () => img.classList.remove('is-loading');
@@ -71,6 +71,12 @@ function setupPageLeave() {
 
     // Al volver con el botón "atrás" la página puede venir de caché: se restaura.
     window.addEventListener('pageshow', () => document.body.classList.remove('is-leaving'));
+}
+
+// Para contenido que se pinta más tarde (p. ej. los cortos que llegan de Supabase).
+function animateContent(root) {
+    setupReveal(root);
+    setupImageFade(root);
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -88,16 +88,16 @@ function renderNotFound(root) {
         </div>`;
 }
 
-function renderShort(root, short, index) {
+function renderShort(root, short, index, shorts) {
     document.title = `${short.title} · PLMRN`;
     document.querySelector('meta[name="description"]')
         ?.setAttribute('content', short.synopsis || `Cortometraje ${short.title} de PLMRN.`);
 
     const poster = short.poster || short.thumbnail;
     const meta = [short.genre, short.year].filter(Boolean).join(' · ');
-    const prev = SHORTS[(index - 1 + SHORTS.length) % SHORTS.length];
-    const next = SHORTS[(index + 1) % SHORTS.length];
-    const others = SHORTS.filter(s => s !== short);
+    const prev = shorts[(index - 1 + shorts.length) % shorts.length];
+    const next = shorts[(index + 1) % shorts.length];
+    const others = shorts.filter(s => s !== short);
 
     root.innerHTML = `
         <div class="backdrop" style="background-image:url('${escapeHTML(short.thumbnail)}')" aria-hidden="true"></div>
@@ -135,7 +135,7 @@ function renderShort(root, short, index) {
 
         ${renderCommentsSection()}
 
-        ${SHORTS.length > 1 ? `
+        ${shorts.length > 1 ? `
         <nav class="pager" aria-label="Otros cortos">
             <a href="${shortUrl(prev)}"><small>← Anterior</small>${escapeHTML(prev.title)}</a>
             <a href="${shortUrl(next)}" class="pager__next"><small>Siguiente →</small>${escapeHTML(next.title)}</a>
@@ -162,22 +162,28 @@ function renderShort(root, short, index) {
     `;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const root = document.getElementById('contenido');
     const slug = new URLSearchParams(location.search).get('id');
-    const index = SHORTS.findIndex(s => s.slug === slug);
+    root.setAttribute('aria-busy', 'true');
+    root.innerHTML = '<p class="muted page-loading">Cargando el cortometraje…</p>';
+
+    const shorts = await loadShorts();
+    const index = shorts.findIndex(s => s.slug === slug);
+    root.removeAttribute('aria-busy');
 
     if (index === -1) renderNotFound(root);
     else {
-        renderShort(root, SHORTS[index], index);
+        const short = shorts[index];
+        renderShort(root, short, index, shorts);
         mountRater(root);
-        mountComments(root, SHORTS[index].slug);
+        mountComments(root, short.slug);
         mountCarousel(root);
 
-        const short = SHORTS[index];
         addShortStructuredData(short);
         getAllRatings()
             .then(ratings => addShortStructuredData(short, ratings.get(short.slug)))
             .catch(() => {});
     }
+    if (typeof animateContent === 'function') animateContent(root);
 });

@@ -51,7 +51,49 @@ Ya está hecho en [`js/config.js`](../js/config.js) con la **Project URL** y la
 > **Nunca** pongas la clave **secret** / **service_role** en la web: todo el
 > código de GitHub Pages es público.
 
-## 4. Moderar comentarios
+## 4. Panel de administración (añadir y editar cortos)
+
+Los cortos se gestionan desde **`admin.html`**
+(`https://marinpal706-netizen.github.io/CORTOS---PALMARIN/admin.html`).
+No hay enlace en el menú: guarda la dirección en favoritos.
+
+### Darte permiso de administrador (una sola vez)
+
+1. Crea una cuenta normal en la web (o usa la que ya tienes).
+2. En **SQL Editor** ejecuta esto, cambiando `TU_USUARIO` por tu nombre de usuario:
+
+```sql
+insert into public.admins (user_id)
+select id from public.profiles where lower(username) = lower('TU_USUARIO')
+on conflict do nothing;
+```
+
+Repite el paso 2 con el usuario de cada persona que deba poder editar.
+Para quitarle el permiso a alguien:
+
+```sql
+delete from public.admins
+ where user_id = (select id from public.profiles where lower(username) = lower('SU_USUARIO'));
+```
+
+### Qué se puede hacer en el panel
+
+- **Nuevo corto**: título, año, género, sinopsis, enlaces de YouTube, imágenes y festivales.
+- **Imágenes**: pulsa *Subir imagen* (PNG, JPG, WEBP o AVIF, máx. 5 MB; las muy
+  grandes se reducen solas). Se guardan en **Storage → shorts-media**. También
+  puedes escribir una ruta de la carpeta `img/` del repositorio.
+- **Ordenar**: flechas ↑ ↓ de la lista. Ese es el orden de "Más recientes".
+- **Ocultar**: desmarca *Publicado*. El corto desaparece de la web pero no se borra.
+- **Borrar**: elimina el corto. Sus valoraciones y comentarios se conservan y
+  vuelven a aparecer si creas otro corto con el mismo identificador.
+
+El identificador (`corto.html?id=...`) no se puede cambiar después de crear el
+corto, porque las valoraciones y los comentarios van unidos a él.
+
+`js/data.js` queda como **copia de seguridad**: la web solo la usa si Supabase
+no responde. Los cortos nuevos ya no hace falta ponerlos ahí.
+
+## 5. Moderar comentarios
 
 - Cada usuario puede borrar sus propios comentarios desde la web.
 - Tú puedes borrar cualquiera en **Table Editor → film_comments**: marca la fila
@@ -72,11 +114,19 @@ Ya está hecho en [`js/config.js`](../js/config.js) con la **Project URL** y la
 | `film_comments.parent_id` | Respuestas a un comentario (un solo nivel). Si se borra el comentario, se borran sus respuestas. |
 | `comment_likes` | Un "me gusta" por (comentario, usuario). Cada usuario solo ve y quita los suyos; el total público está en `film_comments.like_count`. |
 | `username_available(p_username)` | Comprueba si un nombre de usuario está libre al registrarse. |
+| `shorts` | Catálogo de cortos. Todos ven los publicados; solo los administradores crean, editan, ocultan o borran. |
+| `admins` | Cuentas con permiso de administrador. Solo se cambia desde el SQL Editor. |
+| `is_admin()` | Dice si la cuenta con la sesión iniciada es administradora (lo usa `admin.html`). |
+| Storage `shorts-media` | Imágenes de los cortos. Públicas para ver; solo los administradores suben o borran. |
 
 ## Problemas frecuentes
 
 - **"No se ha podido completar el registro"** → *Confirm email* sigue activado (paso 2).
 - **"Ese nombre de usuario ya está en uso"** → otra cuenta lo tiene (sin importar mayúsculas).
 - **"Usuario o contraseña incorrectos"** → revisa la contraseña; si la olvidó, mira el paso 2.
+- **"Esta cuenta no es de administrador"** en `admin.html` → falta el paso 4
+  (o el nombre de usuario del SQL no coincide).
+- **Un corto creado en el panel no sale en la web** → revisa que esté marcado
+  *Publicado* y recarga la web (Ctrl+F5).
 - **No salen los comentarios ni el botón "Entrar"** → el SQL no se ha ejecutado
   entero, o el navegador usa archivos antiguos (prueba en una ventana de incógnito).
