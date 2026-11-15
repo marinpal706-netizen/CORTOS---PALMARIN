@@ -131,20 +131,8 @@ button { font: inherit; }
     max-width: none;
 }
 
-.brand { display: flex; align-items: baseline; gap: 10px; }
-.brand__logo {
-    font-weight: 800;
-    font-size: 1.45rem;
-    letter-spacing: 0.04em;
-    line-height: 1;
-}
-.brand__badge {
-    font-weight: 600;
-    font-size: 0.72rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
+.brand { display: flex; align-items: center; }
+.brand__img { height: 38px; width: auto; display: block; }
 
 .nav { display: flex; gap: 6px; margin-right: auto; }
 .nav a {

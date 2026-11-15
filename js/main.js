@@ -294,8 +294,7 @@ function renderFooter() {
         <div class="container footer">
             <div class="footer__brand">
                 <a class="brand" href="index.html" aria-label="${escapeHTML(SITE.name)}, inicio">
-                    <span class="brand__logo">PLMRN</span>
-                    <span class="brand__badge">Studio</span>
+                    <img class="brand__img" src="img/logo-plmrn.png?v=15" alt="PLMRN Studio" width="760" height="200">
                 </a>
                 <p>Cortometrajes hechos con pocos medios y muchas ganas.</p>
             </div>
