@@ -14,4 +14,4 @@ const SUPABASE_KEY = 'sb_publishable_onFYM07k7RCsXfvvZj8Y1A_puu2OCAk';
 // Pega aquí la "Site Key" de tu widget de Turnstile (es pública).
 // La "Secret Key" va SOLO en Supabase, nunca aquí (ver supabase/README.md).
 // Mientras esté vacía, no se pide captcha.
-const CAPTCHA_SITE_KEY = '';
+const CAPTCHA_SITE_KEY = '0x4AAAAAAGCRfPiaddOCrue1';
