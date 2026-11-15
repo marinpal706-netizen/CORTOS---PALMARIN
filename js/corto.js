@@ -193,73 +193,74 @@ function renderShort(root, short, index, shorts) {
         ?.setAttribute('content', short.synopsis || `Cortometraje ${short.title} de PLMRN.`);
 
     const poster = short.poster || short.thumbnail;
-    const meta = [short.genre, short.year].filter(Boolean).join(' · ');
     const prev = shorts[(index - 1 + shorts.length) % shorts.length];
     const next = shorts[(index + 1) % shorts.length];
     const others = shorts.filter(s => s !== short);
 
+    const meta = [short.year, cleanGenre(short.genre)].filter(Boolean);
+
     root.innerHTML = `
-        <div class="backdrop" style="background-image:url('${escapeHTML(short.thumbnail)}')" aria-hidden="true"></div>
-
-        <a class="back" href="index.html">
-            <span aria-hidden="true">←</span> Volver al catálogo
-        </a>
-
-        <section class="panel detail">
-            <div class="media media--poster ${short.poster ? '' : 'media--fit'}" data-title="${escapeHTML(short.title)}">
-                <img src="${escapeHTML(poster)}" alt="Póster de ${escapeHTML(short.title)}" onerror="handleImageError(this)">
+        <section class="feature" aria-labelledby="detail-title">
+            <div class="feature__media media" data-title="${escapeHTML(short.title)}">
+                <img src="${escapeHTML(backdropOf(short) || poster)}" alt="" fetchpriority="high" onerror="handleImageError(this)">
             </div>
-            <div class="detail__info">
-                <span class="tag tag--red tag--inline">Cortometraje oficial</span>
-                <h1 class="detail__title">${escapeHTML(short.title)}</h1>
-                ${meta ? `<p class="detail__meta">${escapeHTML(meta)}</p>` : ''}
-
-                <div class="detail__actions">
-                    ${short.movie ? '<a class="btn" href="#ver-corto">Ver el corto</a>' : ''}
-                    ${short.trailer ? '<a class="btn btn--ghost" href="#trailer">Ver tráiler</a>' : ''}
-                    ${renderFavoriteButton(short)}
-                    ${renderShareButton()}
+            <div class="feature__shade" aria-hidden="true"></div>
+            <div class="feature__inner container">
+                <a class="back" href="index.html">${ARROW_LEFT_ICON} Volver al catálogo</a>
+                <div class="feature__grid">
+                    <div class="detail__info">
+                        <h1 class="detail__title" id="detail-title">${escapeHTML(short.title)}</h1>
+                        <p class="hero__meta detail__meta">
+                            ${meta.map(item => `<span>${escapeHTML(item)}</span>`).join('')}
+                            ${RATINGS_ENABLED ? `<span class="hero__rating" data-hero-rating="${escapeHTML(short.slug)}" hidden></span>` : ''}
+                            ${short.laurels?.length ? `<span>${short.laurels.length === 1 ? '1 selección en festivales' : `${short.laurels.length} selecciones en festivales`}</span>` : ''}
+                        </p>
+                        <div class="detail__actions">
+                            ${short.movie ? `<a class="btn btn--light" href="#ver-corto">${PLAY_ICON}Ver ahora</a>` : ''}
+                            ${short.trailer ? `<a class="btn btn--glass" href="#trailer">Ver tráiler</a>` : ''}
+                            ${renderFavoriteButton(short)}
+                            ${renderShareButton()}
+                        </div>
+                    </div>
+                    <div class="feature__poster media media--poster ${short.poster ? '' : 'media--fit'}" data-title="${escapeHTML(short.title)}">
+                        <img src="${escapeHTML(poster)}" alt="Póster de ${escapeHTML(short.title)}" onerror="handleImageError(this)">
+                    </div>
                 </div>
-
-                <h2 class="label">Sinopsis</h2>
-                <p class="detail__synopsis">${escapeHTML(short.synopsis || 'Sinopsis próximamente.')}</p>
-
-                ${renderRater(short)}
-
-                <h2 class="label">Festivales y palmarés</h2>
-                ${renderLaurels(short.laurels) || '<p class="muted">Sin selecciones de festivales registradas.</p>'}
             </div>
         </section>
 
-        <div id="trailer">${renderVideo('Tráiler', `Tráiler de ${short.title}`, 'Avance oficial', short.trailer)}</div>
-        <div id="ver-corto">${renderVideo('Cortometraje completo', short.title, 'Película completa', short.movie)}</div>
-
-        ${renderCommentsSection()}
-
-        ${shorts.length > 1 ? `
-        <nav class="pager" aria-label="Otros cortos">
-            <a href="${shortUrl(prev)}"><small>← Anterior</small>${escapeHTML(prev.title)}</a>
-            <a href="${shortUrl(next)}" class="pager__next"><small>Siguiente →</small>${escapeHTML(next.title)}</a>
-        </nav>
-
-        <section class="more" aria-labelledby="more-title">
-            <div class="more__head">
-                <h2 class="section-title" id="more-title">Más cortometrajes</h2>
-                <div class="carousel-nav">
-                    <button type="button" class="carousel-btn" data-carousel="prev" aria-label="Anterior" disabled>${CAROUSEL_ARROW_LEFT}</button>
-                    <button type="button" class="carousel-btn" data-carousel="next" aria-label="Siguiente">${CAROUSEL_ARROW_RIGHT}</button>
+        <div class="container short-body">
+            <section class="record" aria-label="Sinopsis, valoración y festivales">
+                <div class="panel-box record__story">
+                    <h2 class="label">Sinopsis</h2>
+                    <p class="detail__synopsis">${escapeHTML(short.synopsis || 'Sinopsis próximamente.')}</p>
+                    ${renderRater(short)}
                 </div>
-            </div>
-            <div class="carousel" tabindex="0" aria-label="Más cortometrajes">
-                ${others.map(s => `
-                    <a class="mini" href="${shortUrl(s)}">
-                        <div class="media media--video" data-title="${escapeHTML(s.title)}">
-                            <img src="${escapeHTML(s.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)">
-                        </div>
-                        <span>${escapeHTML(s.title)}</span>
-                    </a>`).join('')}
-            </div>
-        </section>` : ''}
+                <div class="panel-box record__laurels">
+                    <h2 class="label">Festivales y palmarés</h2>
+                    ${renderLaurels(short.laurels) || '<p class="muted">Sin selecciones de festivales registradas.</p>'}
+                </div>
+            </section>
+
+            <div id="trailer">${renderVideo('Tráiler', `Tráiler de ${short.title}`, 'Avance oficial', short.trailer)}</div>
+            <div id="ver-corto">${renderVideo('Cortometraje completo', short.title, 'Película completa', short.movie)}</div>
+
+            ${renderCommentsSection()}
+
+            ${shorts.length > 1 ? `
+            <nav class="pager" aria-label="Otros cortos">
+                <a href="${shortUrl(prev)}">
+                    <span class="pager__media media" data-title="${escapeHTML(prev.title)}"><img src="${escapeHTML(prev.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)"></span>
+                    <span class="pager__text"><small>${ARROW_LEFT_ICON} Anterior</small>${escapeHTML(prev.title)}</span>
+                </a>
+                <a href="${shortUrl(next)}" class="pager__next">
+                    <span class="pager__media media" data-title="${escapeHTML(next.title)}"><img src="${escapeHTML(next.thumbnail)}" alt="" loading="lazy" onerror="handleImageError(this)"></span>
+                    <span class="pager__text"><small>Siguiente ${ARROW_RIGHT_ICON}</small>${escapeHTML(next.title)}</span>
+                </a>
+            </nav>` : ''}
+        </div>
+
+        ${others.length ? `<div class="rows rows--detail">${renderRow({ id: 'mas-cortos', title: 'Más cortometrajes', sub: 'Sigue viendo', shorts: others })}</div>` : ''}
     `;
 }
 
@@ -281,11 +282,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         mountFavoriteButton(root);
         mountShare(root, short);
         mountComments(root, short.slug);
-        mountCarousel(root);
+        mountRows(root);
+        startClip(root.querySelector('.feature__media'), short);
 
         addShortStructuredData(short);
         getAllRatings()
-            .then(ratings => addShortStructuredData(short, ratings.get(short.slug)))
+            .then(ratings => {
+                const rating = ratings.get(short.slug);
+                const slot = root.querySelector('[data-hero-rating]');
+                if (slot && rating && rating.votes) {
+                    slot.innerHTML = `${STAR_ICON}${ratingFormat.format(rating.average)}`;
+                    slot.hidden = false;
+                }
+                addShortStructuredData(short, rating);
+            })
             .catch(() => {});
     }
     if (typeof animateContent === 'function') animateContent(root);
