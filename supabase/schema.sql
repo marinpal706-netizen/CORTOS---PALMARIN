@@ -446,11 +446,11 @@ create table if not exists public.shorts (
     year       smallint    check (year between 1900 and 2100),
     genre      text        not null default '' check (char_length(genre) <= 120),
     -- Imágenes: ruta de la carpeta img/ o enlace https (p. ej. Supabase Storage).
-    thumbnail  text        not null default '' check (thumbnail ~ '^(|img/[A-Za-z0-9._/-]{1,200}|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
-    poster     text        not null default '' check (poster    ~ '^(|img/[A-Za-z0-9._/-]{1,200}|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
+    thumbnail  text        not null default '' check (char_length(thumbnail) <= 500 and thumbnail ~ '^(|img/[A-Za-z0-9._/-]+|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+)$'),
+    poster     text        not null default '' check (char_length(poster)    <= 500 and poster    ~ '^(|img/[A-Za-z0-9._/-]+|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+)$'),
     -- Vídeos: enlaces de YouTube (o vacío).
-    trailer    text        not null default '' check (trailer   ~ '^(|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
-    movie      text        not null default '' check (movie     ~ '^(|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]{1,500})$'),
+    trailer    text        not null default '' check (char_length(trailer)   <= 500 and trailer   ~ '^(|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+)$'),
+    movie      text        not null default '' check (char_length(movie)     <= 500 and movie     ~ '^(|https://[A-Za-z0-9._~:/?#@!$&*+,;=%-]+)$'),
     synopsis   text        not null default '' check (char_length(synopsis) <= 2000),
     -- Festivales: [{ "type": "Finalista", "name": "HorrorHound Festival" }, ...]
     laurels    jsonb       not null default '[]' check (jsonb_typeof(laurels) = 'array' and jsonb_array_length(laurels) <= 30),
@@ -501,11 +501,12 @@ begin
     new.genre    := btrim(new.genre);
     new.synopsis := btrim(new.synopsis);
     if exists (
-        select 1 from jsonb_array_elements(new.laurels) l
-         where jsonb_typeof(l) <> 'object'
-            or coalesce(jsonb_typeof(l -> 'name'), '') <> 'string'
-            or char_length(btrim(l ->> 'name')) not between 1 and 120
-            or (l ? 'type' and (jsonb_typeof(l -> 'type') <> 'string' or char_length(l ->> 'type') > 60))
+        select 1 from jsonb_array_elements(new.laurels) as l(item)
+         where jsonb_typeof(l.item) <> 'object'
+            or coalesce(jsonb_typeof(l.item -> 'name'), '') <> 'string'
+            or char_length(btrim(l.item ->> 'name')) not between 1 and 120
+            or coalesce(jsonb_typeof(l.item -> 'type'), 'string') <> 'string'
+            or char_length(coalesce(l.item ->> 'type', '')) > 60
     ) then
         raise exception 'invalid_laurels' using errcode = '22023';
     end if;
