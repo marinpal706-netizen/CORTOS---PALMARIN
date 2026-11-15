@@ -6,7 +6,9 @@ const COMMENTS_PAGE_SIZE = 20;
 const COMMENT_MAX_LENGTH = 1000;
 const LOGIN_TO_COMMENT = 'Inicia sesión para comentar.';
 const LOGIN_TO_LIKE = 'Inicia sesión para dar me gusta.';
-const COMMENT_FIELDS = 'id, body, score, created_at, user_id, parent_id, like_count, profiles(username)';
+// El autor se pide por su clave exacta: comment_likes también une comentarios y perfiles,
+// y sin indicarla Supabase no sabe qué relación usar (error PGRST201).
+const COMMENT_FIELDS = 'id, body, score, created_at, user_id, parent_id, like_count, profiles!film_comments_user_id_fkey(username)';
 
 const relativeTime = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
 const fullDate = new Intl.DateTimeFormat('es-ES', { dateStyle: 'long', timeStyle: 'short' });
